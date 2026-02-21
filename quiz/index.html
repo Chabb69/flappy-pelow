@@ -1,0 +1,1854 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Quiztoon Mania</title>
+  <style>
+    :root{
+      --bg1:#fff6d6;
+      --bg2:#d6f5ff;
+      --ink:#1c1c1c;
+      --card:#ffffff;
+      --accent:#ff4d6d;
+      --accent2:#4d7cff;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --shadow: 0 10px 0 rgba(0,0,0,0.12);
+      --shadow2: 0 6px 0 rgba(0,0,0,0.10);
+      --radius: 18px;
+      --border: 3px solid rgba(0,0,0,0.15);
+      --font: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      --pad: 14px;
+      --gap: 12px;
+      --safeBottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 15% 20%, var(--bg2), transparent 55%),
+        radial-gradient(circle at 85% 30%, var(--bg1), transparent 60%),
+        linear-gradient(135deg, #fff, #f7fbff);
+      min-height:100vh;
+      padding:14px;
+      overflow-x:hidden;
+    }
+
+    /* Layout */
+    .wrap{
+      width:min(980px, 100%);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:16px;
+      align-items:start;
+    }
+
+    @media (max-width: 900px){
+      body{ padding:12px; }
+      .wrap{
+        grid-template-columns: 1fr;
+        gap:12px;
+      }
+    }
+
+    .panel{
+      background:var(--card);
+      border:var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    /* Left panel */
+    .title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .logo{
+      width:54px;
+      height:54px;
+      border-radius:16px;
+      background:linear-gradient(135deg, var(--accent), #ffcf33);
+      border:var(--border);
+      box-shadow:var(--shadow2);
+      display:grid;
+      place-items:center;
+      font-size:28px;
+      transform: rotate(-6deg);
+      user-select:none;
+      flex:0 0 auto;
+    }
+
+    h1{
+      font-size:22px;
+      margin:0;
+      line-height:1.05;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .subtitle{
+      margin:2px 0 0 0;
+      font-size:13px;
+      opacity:0.78;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .sfxPill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:2px solid rgba(0,0,0,0.12);
+      background:linear-gradient(180deg, #fff, #f8fbff);
+      box-shadow:var(--shadow2);
+      user-select:none;
+      flex:0 0 auto;
+    }
+    .sfxDot{
+      width:12px; height:12px; border-radius:50%;
+      background:linear-gradient(180deg, var(--accent2), var(--accent));
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.4);
+      border:1px solid rgba(0,0,0,0.12);
+    }
+    .sfxLabel{ font-weight:900; font-size:13px; opacity:0.9; }
+    .toggle{
+      width:46px; height:26px;
+      border-radius:999px;
+      border:2px solid rgba(0,0,0,0.15);
+      background:#eee;
+      position:relative;
+      cursor:pointer;
+      box-shadow: inset 0 2px 0 rgba(0,0,0,0.08);
+      flex:0 0 auto;
+    }
+    .toggle::after{
+      content:"";
+      position:absolute;
+      top:3px; left:3px;
+      width:18px; height:18px;
+      border-radius:999px;
+      background:#fff;
+      border:2px solid rgba(0,0,0,0.12);
+      transition: left 160ms ease, background 160ms ease;
+    }
+    .toggle.on{
+      background:linear-gradient(90deg, var(--accent2), var(--accent));
+    }
+    .toggle.on::after{ left:23px; }
+
+    .statGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .stat{
+      padding:10px;
+      border-radius:14px;
+      border:2px solid rgba(0,0,0,0.12);
+      background:linear-gradient(180deg, #fff, #fbfbff);
+      min-height:60px;
+    }
+    .stat .k{ font-size:12px; opacity:0.75; }
+    .stat .v{ font-size:20px; font-weight:900; margin-top:2px; }
+
+    .rankBox{
+      margin-top:10px;
+      padding:12px;
+      border-radius:16px;
+      border:2px solid rgba(0,0,0,0.12);
+      background:linear-gradient(135deg, #fff, #fef3ff);
+      position:relative;
+    }
+    .rankTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .rankName{
+      font-weight:900;
+      font-size:16px;
+      letter-spacing:0.2px;
+    }
+    .rankBadge{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:2px solid rgba(0,0,0,0.12);
+      background:linear-gradient(180deg, #fff, #f8fbff);
+      box-shadow:var(--shadow2);
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .rankBadge .ico{
+      font-size:16px;
+      line-height:1;
+    }
+
+    .rpLine{
+      display:flex;
+      justify-content:space-between;
+      font-size:12px;
+      opacity:0.8;
+      margin-top:8px;
+      gap:10px;
+    }
+    .bar{
+      height:14px;
+      border-radius:999px;
+      background:rgba(0,0,0,0.08);
+      overflow:hidden;
+      border:2px solid rgba(0,0,0,0.10);
+      margin-top:8px;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--accent2), var(--accent));
+      transition: width 220ms ease;
+    }
+
+    .footnote{
+      margin-top:10px;
+      font-size:12px;
+      opacity:0.75;
+      line-height:1.25;
+    }
+
+    /* Right panel */
+    .main{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .questionHeader{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .qMeta{
+      font-size:12px;
+      opacity:0.78;
+      margin-top:4px;
+    }
+    .qText{
+      font-size:24px;
+      font-weight:900;
+      margin:0;
+      line-height:1.15;
+      letter-spacing:0.1px;
+      white-space:pre-wrap;
+    }
+
+    .mascot{
+      width:86px;
+      height:86px;
+      border-radius:24px;
+      background:linear-gradient(135deg, #d7ffe6, #fff);
+      border:var(--border);
+      box-shadow:var(--shadow2);
+      display:grid;
+      place-items:center;
+      font-size:44px;
+      user-select:none;
+      transform: rotate(4deg);
+      flex:0 0 auto;
+    }
+
+    .timerBox{
+      border-radius:18px;
+      border:2px solid rgba(0,0,0,0.12);
+      background:linear-gradient(180deg, #fff, #f8fbff);
+      padding:10px;
+    }
+    .timerTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      font-size:13px;
+      opacity:0.85;
+    }
+    .timerBar{
+      margin-top:8px;
+      height:18px;
+      border-radius:999px;
+      background:rgba(0,0,0,0.08);
+      border:2px solid rgba(0,0,0,0.10);
+      overflow:hidden;
+      position:relative;
+    }
+    .timerFill{
+      height:100%;
+      width:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg, #34d399, #60a5fa, #f59e0b, #ef4444);
+      transition: width 80ms linear;
+    }
+
+    .answers{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+
+    .ans{
+      text-align:left;
+      font-size:16px;
+      padding:12px 12px;
+      border-radius:18px;
+      background:linear-gradient(180deg, #fff, #f7f7ff);
+      border:var(--border);
+      box-shadow:var(--shadow2);
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+      min-height:56px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      transition: transform 90ms ease, filter 120ms ease;
+      font-family:var(--font);
+      font-weight:900;
+    }
+    .ans:hover{ filter:brightness(1.03); }
+    .ans:active{ transform: translateY(2px); }
+    .ans .key{
+      width:32px;
+      height:32px;
+      border-radius:12px;
+      border:2px solid rgba(0,0,0,0.12);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      background:linear-gradient(180deg, #fff, #f2f2ff);
+      flex:0 0 auto;
+    }
+    .ans .txt{
+      display:block;
+      line-height:1.15;
+    }
+
+    .ans.good{
+      background:linear-gradient(180deg, #f0fff6, #eafff0);
+      outline: 3px solid rgba(34,197,94,0.35);
+    }
+    .ans.bad{
+      background:linear-gradient(180deg, #fff1f1, #ffe8e8);
+      outline: 3px solid rgba(239,68,68,0.35);
+    }
+    .ans.disabled{
+      cursor:not-allowed;
+      filter:grayscale(0.15) opacity(0.95);
+    }
+
+    .centerRow{
+      display:flex;
+      justify-content:center;
+      margin-top:6px;
+    }
+    .bigBtn{
+      width:min(520px, 100%);
+      justify-content:center;
+      text-align:center;
+      font-size:18px;
+      padding:14px 16px;
+    }
+
+    /* Toast + confetti */
+    .toast{
+      position:fixed;
+      left:50%;
+      top:16px;
+      transform:translateX(-50%);
+      padding:10px 12px;
+      border-radius:16px;
+      border:var(--border);
+      background:linear-gradient(180deg, #fff, #f8fbff);
+      box-shadow:var(--shadow);
+      font-weight:900;
+      z-index:50;
+      display:none;
+      max-width:min(860px, calc(100% - 24px));
+    }
+    .toast.show{ display:block; }
+    .toast.good{ outline: 3px solid rgba(34,197,94,0.35); }
+    .toast.bad{ outline: 3px solid rgba(239,68,68,0.35); }
+
+    .shake{ animation: shake 240ms ease-in-out; }
+    @keyframes shake{
+      0%{ transform: translateX(0); }
+      25%{ transform: translateX(-6px); }
+      50%{ transform: translateX(6px); }
+      75%{ transform: translateX(-4px); }
+      100%{ transform: translateX(0); }
+    }
+
+    .confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:40;
+      display:none;
+    }
+    .confetti.show{ display:block; }
+    .confetti span{
+      position:absolute;
+      width:10px; height:16px;
+      border-radius:3px;
+      opacity:0.95;
+      transform: rotate(0deg);
+      animation: fall 900ms ease-in forwards;
+      border:1px solid rgba(0,0,0,0.12);
+    }
+    @keyframes fall{
+      0%{ transform: translateY(-40px) rotate(0deg); opacity:1; }
+      100%{ transform: translateY(110vh) rotate(360deg); opacity:0.95; }
+    }
+
+    /* -----------------------
+       MOBILE FIX (no-scroll)
+       -----------------------
+       1) On mobile, we show ONLY the main game panel.
+       2) We add a sticky bottom area for Start/Continue.
+       3) While a question is active: compact top info.
+    */
+    @media (max-width: 900px){
+      /* Hide the left panel completely on phones */
+      #sidePanel{ display:none; }
+
+      /* Make main panel occupy the viewport nicely */
+      .panel{ padding: var(--pad); }
+      .wrap{ width:100%; }
+
+      /* Prevent weird extra space from body padding */
+      body{ padding: 10px; }
+
+      /* Right panel becomes "app-like": keep everything visible */
+      .main{
+        gap: var(--gap);
+      }
+
+      .qText{
+        font-size: 20px;
+      }
+      .mascot{
+        width:66px; height:66px;
+        border-radius:20px;
+        font-size:34px;
+      }
+
+      .answers{
+        grid-template-columns: 1fr; /* one column: easier to fit without scroll */
+        gap: 10px;
+      }
+
+      .ans{
+        min-height: 54px;
+        padding: 12px 12px;
+        font-size: 16px;
+      }
+
+      /* Sticky bottom CTA zone */
+      .stickyCta{
+        position: sticky;
+        bottom: calc(10px + var(--safeBottom));
+        z-index: 20;
+        padding-top: 8px;
+        background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.92) 35%, rgba(255,255,255,1));
+      }
+      .stickyCta .centerRow{ margin-top: 0; }
+
+      /* Compact header during active question */
+      body.inQuestion .timerBox{ padding: 8px; }
+      body.inQuestion .timerTop{ font-size: 12px; }
+      body.inQuestion .timerBar{ height: 16px; }
+      body.inQuestion .qMeta{ margin-top: 2px; }
+      body.inQuestion .questionHeader{ gap: 8px; }
+    }
+
+    /* Optional: make the whole page a bit tighter on very small screens */
+    @media (max-width: 380px){
+      .qText{ font-size: 18px; }
+      .ans{ font-size: 15px; }
+      .ans .key{ width:30px; height:30px; border-radius:12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="toast" id="toast"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <div class="wrap">
+    <!-- LEFT PANEL (hidden on mobile) -->
+    <aside class="panel" id="sidePanel">
+      <div class="title">
+        <div class="brand">
+          <div class="logo">🧠</div>
+          <div style="min-width:0;">
+            <h1>Quiztoon Mania</h1>
+            <div class="subtitle">7 secondes. 4 choix. 100% FR.</div>
+          </div>
+        </div>
+
+        <div class="sfxPill" title="Activer/Désactiver les sons">
+          <span class="sfxDot"></span>
+          <span class="sfxLabel">Sons</span>
+          <div class="toggle on" id="toggleSfx"></div>
+        </div>
+      </div>
+
+      <div class="statGrid">
+        <div class="stat">
+          <div class="k">Taux</div>
+          <div class="v" id="rate">0%</div>
+        </div>
+        <div class="stat">
+          <div class="k">Série</div>
+          <div class="v"><span id="streak">0</span> <span style="opacity:.6;font-weight:900;font-size:14px;">(best: <span id="bestStreak">0</span>)</span></div>
+        </div>
+        <div class="stat">
+          <div class="k">Bonnes</div>
+          <div class="v" id="correct">0</div>
+        </div>
+        <div class="stat">
+          <div class="k">Ratées</div>
+          <div class="v" id="wrong">0</div>
+        </div>
+      </div>
+
+      <div class="rankBox">
+        <div class="rankTop">
+          <div class="rankName" id="rankName">Patate Curieuse</div>
+          <div class="rankBadge" title="Meilleur palier atteint">
+            <span class="ico" id="rankIco">🥔</span>
+            <span id="bestRankName">Patate Curieuse</span>
+          </div>
+        </div>
+        <div class="rpLine">
+          <div>RP : <span id="rp">0</span></div>
+          <div>Question : <span id="qIndexLeft">0</span></div>
+        </div>
+        <div class="bar" title="Progression dans ton rang">
+          <div id="rankBar"></div>
+        </div>
+      </div>
+
+      <div class="footnote">
+        Raccourcis : <b>1 2 3 4</b> pour répondre.
+        <br>
+        Progression sauvegardée automatiquement.
+      </div>
+    </aside>
+
+    <!-- MAIN PANEL -->
+    <main class="panel main" id="mainPanel">
+      <!-- Mobile mini header (visible always; on desktop it just blends) -->
+      <div class="title" style="margin-bottom:2px;">
+        <div class="brand">
+          <div class="logo" style="width:46px;height:46px;border-radius:14px;font-size:24px;">Q</div>
+          <div style="min-width:0;">
+            <h1 style="font-size:18px;">Quiztoon Mania</h1>
+            <div class="subtitle" style="font-size:12px;">Mode "série maximale"</div>
+          </div>
+        </div>
+
+        <div class="sfxPill" title="Activer/Désactiver les sons">
+          <span class="sfxDot"></span>
+          <span class="sfxLabel">Sons</span>
+          <div class="toggle on" id="toggleSfxMobile"></div>
+        </div>
+      </div>
+
+      <!-- Mobile compact stats line -->
+      <div id="mobileLine" style="display:none; margin-top:2px; padding:10px; border-radius:16px; border:2px solid rgba(0,0,0,0.12); background:linear-gradient(180deg, #fff, #f8fbff); box-shadow:var(--shadow2);">
+        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between;">
+          <div style="font-weight:900;">
+            Série <span id="streakM">0</span>
+            <span style="opacity:.65; font-weight:900;">(best: <span id="bestStreakM">0</span>)</span>
+          </div>
+          <div style="font-weight:900;">✅ <span id="correctM">0</span> ❌ <span id="wrongM">0</span> 🎯 <span id="rateM">0%</span></div>
+          <div style="font-weight:900;">RP: <span id="rpM">0</span></div>
+          <div style="display:flex; align-items:center; gap:8px; font-weight:900;">
+            <span>Palier</span>
+            <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:2px solid rgba(0,0,0,0.12); background:linear-gradient(180deg, #fff, #f8fbff);">
+              <span id="bestRankIcoM">🥔</span>
+              <span id="bestRankNameM">Patate Curieuse</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="questionHeader" style="margin-top:6px;">
+        <div>
+          <div class="qMeta" id="qMeta">Thème : ...</div>
+          <p class="qText" id="qText">Clique sur "Démarrer" pour lancer la partie.</p>
+        </div>
+        <div class="mascot" id="mascot">🤓</div>
+      </div>
+
+      <div class="timerBox">
+        <div class="timerTop">
+          <div>Temps restant : <b><span id="timeLeft">7.0</span>s</b></div>
+          <div>Question #<b><span id="qIndex">0</span></b></div>
+        </div>
+        <div class="timerBar">
+          <div class="timerFill" id="timerFill"></div>
+        </div>
+      </div>
+
+      <div class="answers" id="answers" style="display:none;">
+        <button class="ans" id="a0"><span class="key">1</span><span class="txt">Réponse</span></button>
+        <button class="ans" id="a1"><span class="key">2</span><span class="txt">Réponse</span></button>
+        <button class="ans" id="a2"><span class="key">3</span><span class="txt">Réponse</span></button>
+        <button class="ans" id="a3"><span class="key">4</span><span class="txt">Réponse</span></button>
+      </div>
+
+      <!-- Sticky CTA zone (helps mobile: always visible) -->
+      <div class="stickyCta">
+        <div id="startZone" class="centerRow">
+          <button class="ans bigBtn" id="btnStart">🚀 Démarrer</button>
+        </div>
+
+        <div id="continueZone" class="centerRow" style="display:none;">
+          <button class="ans bigBtn" id="btnContinue">➡️ Question suivante</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+(() => {
+  // -----------------------
+  // Utils
+  // -----------------------
+  const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const choice = (arr) => arr[randInt(0, arr.length - 1)];
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for(let i=a.length-1; i>0; i--){
+      const j = Math.floor(Math.random() * (i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  // -----------------------
+  // UI
+  // -----------------------
+  const el = (id) => document.getElementById(id);
+
+  const ui = {
+    // desktop stats
+    rate: el("rate"),
+    streak: el("streak"),
+    bestStreak: el("bestStreak"),
+    correct: el("correct"),
+    wrong: el("wrong"),
+
+    rankName: el("rankName"),
+    rankIco: el("rankIco"),
+    bestRankName: el("bestRankName"),
+
+    rp: el("rp"),
+    qIndexLeft: el("qIndexLeft"),
+    rankBar: el("rankBar"),
+
+    // mobile line
+    mobileLine: el("mobileLine"),
+    rateM: el("rateM"),
+    streakM: el("streakM"),
+    bestStreakM: el("bestStreakM"),
+    correctM: el("correctM"),
+    wrongM: el("wrongM"),
+    rpM: el("rpM"),
+    bestRankIcoM: el("bestRankIcoM"),
+    bestRankNameM: el("bestRankNameM"),
+
+    // main question
+    qMeta: el("qMeta"),
+    qText: el("qText"),
+    timeLeft: el("timeLeft"),
+    timerFill: el("timerFill"),
+    qIndex: el("qIndex"),
+    toast: el("toast"),
+    confetti: el("confetti"),
+    mainPanel: el("mainPanel"),
+    mascot: el("mascot"),
+
+    // controls
+    startZone: el("startZone"),
+    btnStart: el("btnStart"),
+    answersWrap: el("answers"),
+    answers: [el("a0"), el("a1"), el("a2"), el("a3")],
+    continueZone: el("continueZone"),
+    btnContinue: el("btnContinue"),
+
+    // toggles
+    toggleSfx: el("toggleSfx"),
+    toggleSfxMobile: el("toggleSfxMobile"),
+  };
+
+  // show mobile line only on small screens
+  const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
+  function refreshMobileUIVisibility(){
+    if(ui.mobileLine){
+      ui.mobileLine.style.display = isMobile() ? "block" : "none";
+    }
+  }
+  refreshMobileUIVisibility();
+  window.addEventListener("resize", refreshMobileUIVisibility);
+
+  // -----------------------
+  // Sound (simple WebAudio)
+  // -----------------------
+  let sfxOn = true;
+  const audioCtx = (() => {
+    try { return new (window.AudioContext || window.webkitAudioContext)(); }
+    catch { return null; }
+  })();
+
+  function beep(freq=440, duration=0.06, type="square", gain=0.05){
+    if(!sfxOn || !audioCtx) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + duration);
+  }
+  function sfxGood(){
+    beep(740, 0.06, "square", 0.045);
+    setTimeout(()=>beep(980, 0.06, "square", 0.045), 70);
+    setTimeout(()=>beep(1240, 0.05, "square", 0.04), 140);
+  }
+  function sfxBad(){
+    beep(220, 0.10, "sawtooth", 0.04);
+    setTimeout(()=>beep(160, 0.10, "sawtooth", 0.04), 90);
+  }
+  function sfxTick(){
+    beep(900, 0.02, "square", 0.02);
+  }
+
+  function syncSfxToggles(){
+    if(ui.toggleSfx) ui.toggleSfx.classList.toggle("on", sfxOn);
+    if(ui.toggleSfxMobile) ui.toggleSfxMobile.classList.toggle("on", sfxOn);
+  }
+
+  function toggleSfx(){
+    sfxOn = !sfxOn;
+    syncSfxToggles();
+    showToast(sfxOn ? "Sons activés." : "Sons coupés.", "");
+    if(sfxOn && audioCtx){
+      audioCtx.resume?.();
+      beep(660, 0.04, "square", 0.03);
+      setTimeout(()=>beep(880, 0.04, "square", 0.03), 70);
+    }
+    saveSoon();
+  }
+
+  // -----------------------
+  // Ranks + Icons
+  // -----------------------
+  const ranks = [
+    { name: "Patate Curieuse", min: 0,   ico: "🥔" },
+    { name: "Poussin Savant",  min: 120, ico: "🐥" },
+    { name: "Apprenti Toucan", min: 260, ico: "🦜" },
+    { name: "Professeur Marmotte", min: 420, ico: "🦫" },
+    { name: "Sensei Pingouin", min: 600, ico: "🐧" },
+    { name: "Génie Capybara",  min: 820, ico: "🦫" }, /* capy emoji isn't everywhere; marmot-like */
+    { name: "Oracle Loutre",   min: 1080, ico:"🦦" },
+    { name: "Archimage Axolotl", min: 1380, ico:"🦎" }, /* fallback */
+    { name: "Titan du Savoir", min: 1740, ico:"🗿" },
+    { name: "Légende du Quiztoon", min: 2160, ico:"🏆" },
+  ];
+
+  function getRank(rp){
+    let idx = 0;
+    for(let i=0; i<ranks.length; i++){
+      if(rp >= ranks[i].min) idx = i;
+    }
+    const cur = ranks[idx];
+    const next = ranks[Math.min(idx+1, ranks.length-1)];
+    const inLast = idx === ranks.length - 1;
+    const span = inLast ? 400 : (next.min - cur.min);
+    const prog = inLast ? 1 : clamp((rp - cur.min) / span, 0, 1);
+    return { idx, name: cur.name, ico: cur.ico, prog };
+  }
+
+  // -----------------------
+  // QUESTIONS (400) - 8 THÈMES
+  // -----------------------
+  // Format: { theme, q, a: [..4], correct: index(0..3), sig }
+  const QUESTION_BANK = [
+
+    // ===== Géographie (50)
+{ theme:"Géographie", q:"Quelle est la capitale du Brésil ?", a:["Rio de Janeiro","Brasilia","São Paulo","Salvador"], correct:1, sig:"geo:cap:bresil" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Argentine ?", a:["Santiago","Buenos Aires","Montevideo","Lima"], correct:1, sig:"geo:cap:argentine" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Turquie ?", a:["Istanbul","Ankara","Izmir","Bursa"], correct:1, sig:"geo:cap:turquie" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Suisse ?", a:["Zurich","Genève","Berne","Bâle"], correct:2, sig:"geo:cap:suisse" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Norvège ?", a:["Oslo","Bergen","Trondheim","Stavanger"], correct:0, sig:"geo:cap:norvege" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Suède ?", a:["Helsinki","Stockholm","Oslo","Copenhague"], correct:1, sig:"geo:cap:suede" },
+{ theme:"Géographie", q:"Quelle est la capitale du Danemark ?", a:["Stockholm","Oslo","Copenhague","Helsinki"], correct:2, sig:"geo:cap:danemark" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Pologne ?", a:["Prague","Varsovie","Budapest","Vienne"], correct:1, sig:"geo:cap:pologne" },
+{ theme:"Géographie", q:"Quelle est la capitale de la République tchèque ?", a:["Prague","Bratislava","Ljubljana","Zagreb"], correct:0, sig:"geo:cap:tchequie" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Hongrie ?", a:["Bucarest","Budapest","Sofia","Belgrade"], correct:1, sig:"geo:cap:hongrie" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Roumanie ?", a:["Bucarest","Budapest","Athènes","Sofia"], correct:0, sig:"geo:cap:roumanie" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Bulgarie ?", a:["Sofia","Skopje","Tirana","Bucarest"], correct:0, sig:"geo:cap:bulgarie" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Croatie ?", a:["Zagreb","Split","Dubrovnik","Ljubljana"], correct:0, sig:"geo:cap:croatie" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Slovénie ?", a:["Zagreb","Ljubljana","Bratislava","Sarajevo"], correct:1, sig:"geo:cap:slovenie" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Slovaquie ?", a:["Prague","Bratislava","Varsovie","Budapest"], correct:1, sig:"geo:cap:slovaquie" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Islande ?", a:["Reykjavik","Oslo","Dublin","Helsinki"], correct:0, sig:"geo:cap:islande" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Écosse ?", a:["Cardiff","Édimbourg","Belfast","Glasgow"], correct:1, sig:"geo:cap:ecosse" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Irlande ?", a:["Dublin","Belfast","Cork","Galway"], correct:0, sig:"geo:cap:irlande" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Grèce ?", a:["Athènes","Thessalonique","Sofia","Nicosie"], correct:0, sig:"geo:cap:grece" },
+{ theme:"Géographie", q:"Quelle est la capitale de Chypre ?", a:["Nicosie","La Valette","Athènes","Limassol"], correct:0, sig:"geo:cap:chypre" },
+
+{ theme:"Géographie", q:"Quelle est la capitale du Maroc ?", a:["Casablanca","Rabat","Marrakech","Tanger"], correct:1, sig:"geo:cap:maroc" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Tunisie ?", a:["Sfax","Tunis","Alger","Tripoli"], correct:1, sig:"geo:cap:tunisie" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Algérie ?", a:["Oran","Alger","Constantine","Annaba"], correct:1, sig:"geo:cap:algerie" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Égypte ?", a:["Alexandrie","Le Caire","Gizeh","Louxor"], correct:1, sig:"geo:cap:egypte" },
+{ theme:"Géographie", q:"Quelle est la capitale du Sénégal ?", a:["Dakar","Saint-Louis","Bamako","Conakry"], correct:0, sig:"geo:cap:senegal" },
+{ theme:"Géographie", q:"Quelle est la capitale du Kenya ?", a:["Mombasa","Nairobi","Kampala","Dar es Salaam"], correct:1, sig:"geo:cap:kenya" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Afrique du Sud (administrative) ?", a:["Le Cap","Pretoria","Johannesburg","Durban"], correct:1, sig:"geo:cap:afsud" },
+
+{ theme:"Géographie", q:"Quelle est la capitale de la Chine ?", a:["Shanghai","Pékin","Hong Kong","Shenzhen"], correct:1, sig:"geo:cap:chine" },
+{ theme:"Géographie", q:"Quelle est la capitale du Japon ?", a:["Osaka","Tokyo","Kyoto","Nagoya"], correct:1, sig:"geo:cap:japon" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Corée du Sud ?", a:["Busan","Séoul","Incheon","Daegu"], correct:1, sig:"geo:cap:coreeSud" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Thaïlande ?", a:["Bangkok","Phuket","Chiang Mai","Pattaya"], correct:0, sig:"geo:cap:thailande" },
+{ theme:"Géographie", q:"Quelle est la capitale du Vietnam ?", a:["Hô Chi Minh-Ville","Hanoï","Da Nang","Hue"], correct:1, sig:"geo:cap:vietnam" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Inde ?", a:["Mumbai","New Delhi","Bangalore","Calcutta"], correct:1, sig:"geo:cap:inde" },
+{ theme:"Géographie", q:"Quelle est la capitale de l’Australie ?", a:["Sydney","Canberra","Melbourne","Perth"], correct:1, sig:"geo:cap:australie" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Nouvelle-Zélande ?", a:["Auckland","Wellington","Christchurch","Dunedin"], correct:1, sig:"geo:cap:nz" },
+
+{ theme:"Géographie", q:"Quelle est la capitale du Canada ?", a:["Toronto","Vancouver","Ottawa","Montréal"], correct:2, sig:"geo:cap:canada" },
+{ theme:"Géographie", q:"Quelle est la capitale des États-Unis ?", a:["New York","Washington, D.C.","Los Angeles","Chicago"], correct:1, sig:"geo:cap:usa" },
+{ theme:"Géographie", q:"Quelle est la capitale du Mexique ?", a:["Guadalajara","Cancún","Mexico","Monterrey"], correct:2, sig:"geo:cap:mexique" },
+{ theme:"Géographie", q:"Quelle est la capitale du Chili ?", a:["Santiago","Valparaíso","Lima","La Paz"], correct:0, sig:"geo:cap:chili" },
+{ theme:"Géographie", q:"Quelle est la capitale du Pérou ?", a:["Quito","Lima","Bogotá","La Paz"], correct:1, sig:"geo:cap:perou" },
+{ theme:"Géographie", q:"Quelle est la capitale de la Colombie ?", a:["Medellín","Bogotá","Cali","Caracas"], correct:1, sig:"geo:cap:colombie" },
+
+{ theme:"Géographie", q:"Quel est le plus grand océan du monde ?", a:["Atlantique","Indien","Pacifique","Arctique"], correct:2, sig:"geo:ocean:plusGrand" },
+{ theme:"Géographie", q:"Quel est le plus long fleuve du monde (selon de nombreuses sources scolaires) ?", a:["Nil","Amazone","Yangtsé","Mississippi"], correct:0, sig:"geo:fleuve:nil" },
+{ theme:"Géographie", q:"Dans quel pays se trouve le Machu Picchu ?", a:["Bolivie","Pérou","Chili","Équateur"], correct:1, sig:"geo:site:machuPicchu" },
+{ theme:"Géographie", q:"Dans quel pays se trouve Angkor (Angkor Wat) ?", a:["Thaïlande","Cambodge","Laos","Myanmar"], correct:1, sig:"geo:site:angkor" },
+{ theme:"Géographie", q:"Dans quel pays se trouve la Grande Barrière de corail ?", a:["Australie","Indonésie","Philippines","Fidji"], correct:0, sig:"geo:site:barriereCorail" },
+{ theme:"Géographie", q:"Quel est le plus haut sommet du monde ?", a:["K2","Mont Blanc","Everest","Kilimandjaro"], correct:2, sig:"geo:sommet:everest" },
+{ theme:"Géographie", q:"Quel fleuve traverse Paris ?", a:["La Seine","Le Rhône","La Loire","La Garonne"], correct:0, sig:"geo:fleuve:paris" },
+{ theme:"Géographie", q:"Quel désert est le plus grand désert chaud ?", a:["Gobi","Sahara","Kalahari","Atacama"], correct:1, sig:"geo:desert:sahara" },
+{ theme:"Géographie", q:"Quel pays est surnommé ‘le pays du Soleil-Levant’ ?", a:["Chine","Japon","Corée du Sud","Vietnam"], correct:1, sig:"geo:surnom:soleilLevant" },
+{ theme:"Géographie", q:"Quel est le plus grand pays du monde (superficie) ?", a:["Canada","Chine","Russie","États-Unis"], correct:2, sig:"geo:pays:plusGrand" },
+
+// ===== Sciences (50)
+
+{ theme:"Sciences", q:"Quel est le symbole chimique de l’oxygène ?", a:["Ox","O","Og","Oy"], correct:1, sig:"sci:sym:oxygene" },
+{ theme:"Sciences", q:"Quel est le symbole chimique du carbone ?", a:["C","Ca","Co","Cr"], correct:0, sig:"sci:sym:carbone" },
+{ theme:"Sciences", q:"Quel est le symbole chimique de l’azote ?", a:["N","Na","Ne","Ni"], correct:0, sig:"sci:sym:azote" },
+{ theme:"Sciences", q:"Quel est le symbole chimique de l’hélium ?", a:["H","He","Hl","Hu"], correct:1, sig:"sci:sym:helium" },
+{ theme:"Sciences", q:"Quel est le symbole chimique du sodium ?", a:["So","Sd","Na","Sn"], correct:2, sig:"sci:sym:sodium" },
+{ theme:"Sciences", q:"Quel est le symbole chimique du calcium ?", a:["Ca","Cl","C","Cm"], correct:0, sig:"sci:sym:calcium" },
+{ theme:"Sciences", q:"Quel est le symbole chimique du magnésium ?", a:["Mn","Mg","Ma","Me"], correct:1, sig:"sci:sym:magnesium" },
+{ theme:"Sciences", q:"Quel est le symbole chimique de l’argent ?", a:["Ag","Au","Ar","Al"], correct:0, sig:"sci:sym:argent" },
+{ theme:"Sciences", q:"Quel est le symbole chimique du plomb ?", a:["Pb","Pl","Po","Pm"], correct:0, sig:"sci:sym:plomb" },
+{ theme:"Sciences", q:"Quel est le symbole chimique du cuivre ?", a:["Cu","Cv","Cr","Cm"], correct:0, sig:"sci:sym:cuivre" },
+
+{ theme:"Sciences", q:"Quelle planète est surnommée la planète rouge ?", a:["Vénus","Mars","Mercure","Saturne"], correct:1, sig:"sci:planete:mars" },
+{ theme:"Sciences", q:"Quelle est la plus grande planète du système solaire ?", a:["Saturne","Jupiter","Neptune","Uranus"], correct:1, sig:"sci:planete:jupiter" },
+{ theme:"Sciences", q:"Combien de planètes compte le système solaire ?", a:["7","8","9","10"], correct:1, sig:"sci:planete:8" },
+{ theme:"Sciences", q:"Quelle planète possède des anneaux très visibles ?", a:["Mars","Jupiter","Saturne","Vénus"], correct:2, sig:"sci:planete:saturne" },
+{ theme:"Sciences", q:"Quelle est l’étoile au centre du système solaire ?", a:["La Lune","Mars","Le Soleil","Vénus"], correct:2, sig:"sci:soleil" },
+{ theme:"Sciences", q:"Comment s’appelle notre galaxie ?", a:["Andromède","Voie lactée","Orion","Sagittaire"], correct:1, sig:"sci:galaxie" },
+{ theme:"Sciences", q:"Quelle planète est la plus éloignée du Soleil ?", a:["Neptune","Uranus","Saturne","Jupiter"], correct:0, sig:"sci:planete:neptune" },
+{ theme:"Sciences", q:"Comment appelle-t-on un astre qui tourne autour d’une planète ?", a:["Étoile","Astéroïde","Satellite","Comète"], correct:2, sig:"sci:satellite" },
+
+{ theme:"Sciences", q:"Quel organe pompe le sang dans le corps humain ?", a:["Poumon","Foie","Cœur","Rein"], correct:2, sig:"sci:organe:coeur" },
+{ theme:"Sciences", q:"Quel organe permet de respirer ?", a:["Cerveau","Poumon","Estomac","Pancréas"], correct:1, sig:"sci:organe:poumon" },
+{ theme:"Sciences", q:"Quel organe filtre le sang ?", a:["Rein","Cœur","Poumon","Rate"], correct:0, sig:"sci:organe:rein" },
+{ theme:"Sciences", q:"Combien d’os possède le corps humain adulte ?", a:["156","206","306","106"], correct:1, sig:"sci:os:206" },
+{ theme:"Sciences", q:"Quel est l’organe principal du système nerveux ?", a:["Cerveau","Moelle","Cœur","Poumon"], correct:0, sig:"sci:organe:cerveau" },
+{ theme:"Sciences", q:"Quel organe est responsable de la digestion des aliments ?", a:["Estomac","Cœur","Foie","Poumon"], correct:0, sig:"sci:organe:estomac" },
+
+{ theme:"Sciences", q:"Quelle force nous maintient au sol ?", a:["Magnétisme","Gravité","Friction","Pression"], correct:1, sig:"sci:gravite" },
+{ theme:"Sciences", q:"Quel est l’état de l’eau à 100°C ?", a:["Solide","Liquide","Gazeux","Plasma"], correct:2, sig:"sci:eau:100" },
+{ theme:"Sciences", q:"Quel est l’état de l’eau à 0°C ?", a:["Solide","Liquide","Gazeux","Plasma"], correct:0, sig:"sci:eau:0" },
+{ theme:"Sciences", q:"Quelle unité mesure la force ?", a:["Watt","Newton","Volt","Pascal"], correct:1, sig:"sci:unite:newton" },
+{ theme:"Sciences", q:"Quelle unité mesure la tension électrique ?", a:["Volt","Watt","Ampère","Newton"], correct:0, sig:"sci:unite:volt" },
+{ theme:"Sciences", q:"Quelle unité mesure l’intensité du courant électrique ?", a:["Volt","Watt","Ampère","Ohm"], correct:2, sig:"sci:unite:ampere" },
+{ theme:"Sciences", q:"Quel est l’état de la matière dans une flamme très chaude ?", a:["Solide","Liquide","Gaz","Plasma"], correct:3, sig:"sci:plasma" },
+
+{ theme:"Sciences", q:"Quel gaz les plantes absorbent-elles principalement ?", a:["Oxygène","Azote","Dioxyde de carbone","Hydrogène"], correct:2, sig:"sci:plantes:co2" },
+{ theme:"Sciences", q:"Quel gaz les humains respirent-ils pour vivre ?", a:["Azote","Oxygène","Dioxyde de carbone","Hélium"], correct:1, sig:"sci:respiration" },
+{ theme:"Sciences", q:"Comment s’appelle le processus par lequel les plantes produisent de l’énergie ?", a:["Respiration","Photosynthèse","Évaporation","Fermentation"], correct:1, sig:"sci:photosynthese" },
+
+{ theme:"Sciences", q:"Quel est le plus grand mammifère terrestre ?", a:["Éléphant","Girafe","Rhinocéros","Hippopotame"], correct:0, sig:"sci:mammifere:elephant" },
+{ theme:"Sciences", q:"Quel est le plus grand animal du monde ?", a:["Requin blanc","Éléphant","Baleine bleue","Orque"], correct:2, sig:"sci:baleine" },
+{ theme:"Sciences", q:"Quel animal est un amphibien ?", a:["Serpent","Grenouille","Aigle","Lion"], correct:1, sig:"sci:amphibien" },
+
+{ theme:"Sciences", q:"Quelle couche protège la Terre des rayons UV ?", a:["Troposphère","Stratosphère","Couche d’ozone","Ionosphère"], correct:2, sig:"sci:ozone" },
+{ theme:"Sciences", q:"Quel phénomène provoque les marées ?", a:["Le vent","La gravité de la Lune","La rotation de la Terre","Les volcans"], correct:1, sig:"sci:marees" },
+{ theme:"Sciences", q:"Comment s’appelle la transformation d’un liquide en gaz ?", a:["Condensation","Solidification","Évaporation","Fusion"], correct:2, sig:"sci:evaporation" },
+{ theme:"Sciences", q:"Comment s’appelle la transformation d’un solide en liquide ?", a:["Fusion","Condensation","Sublimation","Évaporation"], correct:0, sig:"sci:fusion" },
+{ theme:"Sciences", q:"Quel instrument mesure les séismes ?", a:["Thermomètre","Sismographe","Baromètre","Altimètre"], correct:1, sig:"sci:sismographe" },
+{ theme:"Sciences", q:"Quel instrument mesure la pression atmosphérique ?", a:["Thermomètre","Baromètre","Hygromètre","Chronomètre"], correct:1, sig:"sci:barometre" },
+
+{ theme:"Sciences", q:"Quel métal est liquide à température ambiante ?", a:["Mercure","Fer","Or","Cuivre"], correct:0, sig:"sci:mercure" },
+{ theme:"Sciences", q:"Quel est le centre d’un atome ?", a:["Électron","Proton","Neutron","Noyau"], correct:3, sig:"sci:noyau" },
+{ theme:"Sciences", q:"Comment s’appelle l’énergie produite par le Soleil ?", a:["Nucléaire","Solaire","Hydraulique","Éolienne"], correct:1, sig:"sci:energie:solaire" },
+{ theme:"Sciences", q:"Quelle est la formule chimique de l’eau ?", a:["H2O","CO2","O2","NaCl"], correct:0, sig:"sci:h2o" },
+{ theme:"Sciences", q:"Quel gaz est responsable en grande partie de l’effet de serre ?", a:["Oxygène","Azote","Dioxyde de carbone","Hélium"], correct:2, sig:"sci:effetSerre" },
+
+ // ===== Cinéma & séries (50)
+
+{ theme:"Cinéma & séries", q:"Qui réalise le film Titanic ?", a:["Steven Spielberg","James Cameron","Christopher Nolan","Ridley Scott"], correct:1, sig:"cine:real:titanic" },
+{ theme:"Cinéma & séries", q:"Dans quel film trouve-t-on le personnage de Jack Sparrow ?", a:["Pirates des Caraïbes","Hook","Le Seigneur des anneaux","Gladiator"], correct:0, sig:"cine:sparrow" },
+{ theme:"Cinéma & séries", q:"Quel acteur incarne Iron Man ?", a:["Chris Evans","Robert Downey Jr.","Chris Hemsworth","Mark Ruffalo"], correct:1, sig:"cine:ironman:acteur" },
+{ theme:"Cinéma & séries", q:"Dans quelle saga apparaît le personnage de Frodo ?", a:["Harry Potter","Star Wars","Le Seigneur des anneaux","Twilight"], correct:2, sig:"cine:frodo" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un parc rempli de dinosaures ?", a:["King Kong","Godzilla","Jurassic Park","Avatar"], correct:2, sig:"cine:jurassic2" },
+{ theme:"Cinéma & séries", q:"Dans quel film entend-on ‘Why so serious?’ ?", a:["The Dark Knight","Joker","Batman Begins","Suicide Squad"], correct:0, sig:"cine:whyso" },
+{ theme:"Cinéma & séries", q:"Quel est le prénom du sorcier dans Harry Potter ?", a:["Ron","Harry","Draco","Neville"], correct:1, sig:"cine:harryprenom" },
+{ theme:"Cinéma & séries", q:"Dans Star Wars, qui est le maître de Luke Skywalker ?", a:["Han Solo","Obi-Wan Kenobi","Yoda","Anakin"], correct:2, sig:"cine:yoda" },
+{ theme:"Cinéma & séries", q:"Quel film parle de rêves imbriqués ?", a:["Interstellar","Inception","Tenet","Shutter Island"], correct:1, sig:"cine:inception2" },
+{ theme:"Cinéma & séries", q:"Dans Matrix, comment s’appelle le héros ?", a:["Neo","Morpheus","Smith","Trinity"], correct:0, sig:"cine:neo" },
+
+{ theme:"Cinéma & séries", q:"Quel film raconte l’histoire d’un boxeur nommé Rocky ?", a:["Creed","Million Dollar Baby","Rocky","Raging Bull"], correct:2, sig:"cine:rocky" },
+{ theme:"Cinéma & séries", q:"Quel film se déroule sur une planète appelée Pandora ?", a:["Avatar","Star Trek","Dune","Interstellar"], correct:0, sig:"cine:avatar" },
+{ theme:"Cinéma & séries", q:"Dans quelle série trouve-t-on le personnage de Walter White ?", a:["Breaking Bad","Narcos","Ozark","Better Call Saul"], correct:0, sig:"serie:walter" },
+{ theme:"Cinéma & séries", q:"Dans quelle série se déroule l’histoire à Westeros ?", a:["Vikings","The Witcher","Game of Thrones","Rome"], correct:2, sig:"serie:westeros" },
+{ theme:"Cinéma & séries", q:"Quel film d’animation met en scène un ogre vert ?", a:["Monstres & Cie","Shrek","Toy Story","Dragons"], correct:1, sig:"cine:shrek" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un paquebot qui coule en 1912 ?", a:["Titanic","Le Prestige","Pearl Harbor","The Abyss"], correct:0, sig:"cine:titanic2" },
+{ theme:"Cinéma & séries", q:"Dans quelle saga trouve-t-on le personnage d’Anakin Skywalker ?", a:["Harry Potter","Star Wars","Matrix","Marvel"], correct:1, sig:"cine:anakin" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un robot nommé Wall-E ?", a:["Robots","Wall-E","Big Hero 6","Cars"], correct:1, sig:"cine:walle" },
+{ theme:"Cinéma & séries", q:"Quel film raconte l’histoire d’un clown devenu criminel en 2019 ?", a:["It","Joker","The Batman","Suicide Squad"], correct:1, sig:"cine:joker2019" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on les aventures de Michael Scott ?", a:["The Office","Friends","Brooklyn 99","Scrubs"], correct:0, sig:"serie:michaelscott" },
+
+{ theme:"Cinéma & séries", q:"Quel film met en scène un lion nommé Simba ?", a:["Madagascar","Le Roi Lion","Zootopie","Tarzan"], correct:1, sig:"cine:simba" },
+{ theme:"Cinéma & séries", q:"Dans quelle série apparaît Eleven ?", a:["Dark","The Boys","Stranger Things","Lost"], correct:2, sig:"serie:eleven" },
+{ theme:"Cinéma & séries", q:"Quel film se déroule principalement dans l’espace avec un trou noir ?", a:["Gravity","Interstellar","Alien","Seul sur Mars"], correct:1, sig:"cine:interstellar" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un jeune sorcier et la pierre philosophale ?", a:["Harry Potter à l’école des sorciers","Le Monde de Narnia","Eragon","Willow"], correct:0, sig:"cine:pierrePhilo" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on un groupe d’amis à New York dans les années 90 ?", a:["Friends","How I Met Your Mother","The Office","Seinfeld"], correct:0, sig:"serie:friends" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène des gladiateurs romains ?", a:["300","Spartacus","Gladiator","Ben-Hur"], correct:2, sig:"cine:gladiator" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un panda expert en kung-fu ?", a:["Kung Fu Panda","Mulan","Dragons","Shrek"], correct:0, sig:"cine:panda" },
+{ theme:"Cinéma & séries", q:"Quel acteur joue Jack dans Titanic ?", a:["Brad Pitt","Leonardo DiCaprio","Matt Damon","Tom Cruise"], correct:1, sig:"cine:leo" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on des braqueurs en combinaison rouge ?", a:["Narcos","Money Heist","La Casa de Papel","Breaking Bad"], correct:2, sig:"serie:casa" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un clown maléfique nommé Pennywise ?", a:["Ça","Joker","Annabelle","Conjuring"], correct:0, sig:"cine:pennywise" },
+
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on un chimiste devenu trafiquant ?", a:["Ozark","Breaking Bad","Narcos","Dexter"], correct:1, sig:"serie:bb" },
+{ theme:"Cinéma & séries", q:"Quel film raconte l’histoire d’un jeune boxeur entraîné par Rocky ?", a:["Creed","Rocky 2","Million Dollar Baby","Warrior"], correct:0, sig:"cine:creed" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un magicien joué par Hugh Jackman et Christian Bale ?", a:["The Illusionist","Now You See Me","The Prestige","Sherlock Holmes"], correct:2, sig:"cine:prestige" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on des survivants après un crash d’avion sur une île ?", a:["Lost","The 100","The Walking Dead","Manifest"], correct:0, sig:"serie:lost" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un homme coincé sur Mars ?", a:["Interstellar","Gravity","Seul sur Mars","Apollo 13"], correct:2, sig:"cine:mars" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un jeune homme aux ciseaux à la place des mains ?", a:["Edward aux mains d’argent","Sleepy Hollow","Beetlejuice","Coraline"], correct:0, sig:"cine:edward" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on des vikings menés par Ragnar ?", a:["The Witcher","Vikings","Game of Thrones","Rome"], correct:1, sig:"serie:ragnar" },
+{ theme:"Cinéma & séries", q:"Quel film raconte l’histoire d’un robot policier à Détroit ?", a:["Terminator","Robocop","Blade Runner","I, Robot"], correct:1, sig:"cine:robocop" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un super-héros nommé Thor ?", a:["Avengers","Thor","Iron Man","Doctor Strange"], correct:1, sig:"cine:thor" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on les aventures de Sheldon Cooper ?", a:["Friends","The Big Bang Theory","How I Met Your Mother","Scrubs"], correct:1, sig:"serie:sheldon" },
+
+{ theme:"Cinéma & séries", q:"Quel film d’animation met en scène Woody et Buzz ?", a:["Cars","Toy Story","Vice-Versa","Coco"], correct:1, sig:"cine:toystory" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on un tueur en série travaillant pour la police ?", a:["Dexter","Mindhunter","Narcos","Fargo"], correct:0, sig:"serie:dexter" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un requin géant terrorisant une plage ?", a:["Jaws","Titanic","Anaconda","Sharknado"], correct:0, sig:"cine:jaws" },
+{ theme:"Cinéma & séries", q:"Quel film raconte l’histoire d’un hacker nommé Thomas Anderson ?", a:["Matrix","Hackers","Inception","Minority Report"], correct:0, sig:"cine:matrix2" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on un groupe luttant contre des zombies ?", a:["The Walking Dead","Lost","Dark","Vikings"], correct:0, sig:"serie:zombies" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un extraterrestre qui téléphone ‘maison’ ?", a:["Alien","E.T.","Avatar","District 9"], correct:1, sig:"cine:et" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un policier infiltré dans la mafia à Boston ?", a:["Heat","Les Infiltrés","Scarface","Seven"], correct:1, sig:"cine:infiltrés" },
+{ theme:"Cinéma & séries", q:"Dans quelle série suit-on un professeur devenu trafiquant de drogue ?", a:["Ozark","Breaking Bad","Narcos","Peaky Blinders"], correct:1, sig:"serie:prof" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un bateau spatial nommé Nostromo ?", a:["Alien","Star Wars","Star Trek","Dune"], correct:0, sig:"cine:nostromo" },
+{ theme:"Cinéma & séries", q:"Quel film met en scène un homme avec des griffes appelé Wolverine ?", a:["X-Men","Avengers","Blade","Spawn"], correct:0, sig:"cine:wolverine" },
+
+// ===== Sport & pop (50)
+
+{ theme:"Sport & pop", q:"Combien de joueurs par équipe sur le terrain au football ?", a:["9","10","11","12"], correct:2, sig:"sport:foot:11" },
+{ theme:"Sport & pop", q:"Combien de joueurs par équipe sur le terrain en basketball ?", a:["4","5","6","7"], correct:1, sig:"sport:basket:5" },
+{ theme:"Sport & pop", q:"Quel pays a remporté la Coupe du monde 2018 ?", a:["Brésil","France","Allemagne","Argentine"], correct:1, sig:"sport:cdm:2018" },
+{ theme:"Sport & pop", q:"Quel sport utilise un ballon ovale ?", a:["Football","Rugby","Basketball","Handball"], correct:1, sig:"sport:rugby" },
+{ theme:"Sport & pop", q:"Quel sport se joue avec une balle jaune et une raquette ?", a:["Badminton","Tennis","Squash","Padel"], correct:1, sig:"sport:tennis" },
+{ theme:"Sport & pop", q:"Comment appelle-t-on un score de 40-40 au tennis ?", a:["Tie-break","Avantage","Deuce","Égalité"], correct:2, sig:"sport:tennis:deuce" },
+{ theme:"Sport & pop", q:"Quel sport est associé au Tour de France ?", a:["Athlétisme","Cyclisme","Moto","Triathlon"], correct:1, sig:"sport:cyclisme" },
+{ theme:"Sport & pop", q:"Combien de sets faut-il gagner en tennis masculin (Grand Chelem) ?", a:["2","3","4","5"], correct:1, sig:"sport:tennis:sets" },
+{ theme:"Sport & pop", q:"Quel pays est célèbre pour les All Blacks ?", a:["Australie","Nouvelle-Zélande","Afrique du Sud","Angleterre"], correct:1, sig:"sport:allblacks" },
+{ theme:"Sport & pop", q:"Quel sport pratique Kylian Mbappé ?", a:["Basketball","Rugby","Football","Tennis"], correct:2, sig:"sport:mbappe" },
+
+{ theme:"Sport & pop", q:"Quel sport est associé à un KO ?", a:["Judo","Boxe","Rugby","Natation"], correct:1, sig:"sport:ko" },
+{ theme:"Sport & pop", q:"Quel sport se pratique sur un tatami ?", a:["Judo","Boxe","Escrime","Lutte"], correct:0, sig:"sport:tatami" },
+{ theme:"Sport & pop", q:"Combien de points vaut un panier derrière la ligne des 3 points en basketball ?", a:["1","2","3","4"], correct:2, sig:"sport:basket:3pts" },
+{ theme:"Sport & pop", q:"Quel sport est associé à la NBA ?", a:["Football","Hockey","Basketball","Baseball"], correct:2, sig:"sport:nba" },
+{ theme:"Sport & pop", q:"Quel sport se joue avec un volant ?", a:["Badminton","Tennis","Squash","Ping-pong"], correct:0, sig:"sport:volant" },
+{ theme:"Sport & pop", q:"Quel sport utilise un ring ?", a:["Boxe","Football","Rugby","Natation"], correct:0, sig:"sport:ring" },
+{ theme:"Sport & pop", q:"Quel sport se pratique principalement en piscine ?", a:["Water-polo","Rugby","Tennis","Volley"], correct:0, sig:"sport:piscine" },
+{ theme:"Sport & pop", q:"Quel sport est associé aux Jeux Olympiques d’hiver ?", a:["Surf","Ski","Tennis","Athlétisme"], correct:1, sig:"sport:ski" },
+{ theme:"Sport & pop", q:"Quel sport pratique Rafael Nadal ?", a:["Football","Tennis","Basketball","Golf"], correct:1, sig:"sport:nadal" },
+{ theme:"Sport & pop", q:"Quel sport est associé à Roland-Garros ?", a:["Tennis","Rugby","Football","Athlétisme"], correct:0, sig:"sport:rolandgarros" },
+
+{ theme:"Sport & pop", q:"Quel personnage est la mascotte de Nintendo ?", a:["Sonic","Mario","Crash","Rayman"], correct:1, sig:"pop:mario" },
+{ theme:"Sport & pop", q:"Dans quel univers trouve-t-on Pikachu ?", a:["Digimon","Pokémon","Yu-Gi-Oh!","Dragon Ball"], correct:1, sig:"pop:pikachu" },
+{ theme:"Sport & pop", q:"Quel super-héros est connu pour son marteau ?", a:["Thor","Iron Man","Hulk","Batman"], correct:0, sig:"pop:thor" },
+{ theme:"Sport & pop", q:"Quel héros porte un bouclier étoilé ?", a:["Iron Man","Captain America","Superman","Flash"], correct:1, sig:"pop:capamerica" },
+{ theme:"Sport & pop", q:"Dans quel manga trouve-t-on Son Goku ?", a:["Naruto","Bleach","Dragon Ball","One Piece"], correct:2, sig:"pop:goku" },
+{ theme:"Sport & pop", q:"Quel est le nom du pirate au chapeau de paille dans One Piece ?", a:["Naruto","Luffy","Ichigo","Eren"], correct:1, sig:"pop:luffy" },
+{ theme:"Sport & pop", q:"Quel personnage est un ninja blond dans Naruto ?", a:["Sasuke","Naruto","Kakashi","Itachi"], correct:1, sig:"pop:naruto" },
+{ theme:"Sport & pop", q:"Quel jeu vidéo met en scène un battle royale avec des constructions ?", a:["Call of Duty","Fortnite","FIFA","Minecraft"], correct:1, sig:"pop:fortnite" },
+{ theme:"Sport & pop", q:"Quel jeu vidéo met en scène des créatures cubiques et du crafting ?", a:["Minecraft","Terraria","Fortnite","Roblox"], correct:0, sig:"pop:minecraft" },
+{ theme:"Sport & pop", q:"Quel jeu vidéo est associé au plombier moustachu ?", a:["Sonic","Mario","Zelda","Metroid"], correct:1, sig:"pop:plombier" },
+
+{ theme:"Sport & pop", q:"Quel sport est associé au maillot jaune ?", a:["Football","Cyclisme","Formule 1","Judo"], correct:1, sig:"sport:maillotjaune" },
+{ theme:"Sport & pop", q:"Quel sport se joue avec une crosse ?", a:["Hockey","Football","Basketball","Tennis"], correct:0, sig:"sport:hockey" },
+{ theme:"Sport & pop", q:"Quel sport pratique Lewis Hamilton ?", a:["MotoGP","Formule 1","Rallye","Karting"], correct:1, sig:"sport:hamilton" },
+{ theme:"Sport & pop", q:"Quel sport se pratique sur un green ?", a:["Golf","Rugby","Tennis","Hockey"], correct:0, sig:"sport:golf" },
+{ theme:"Sport & pop", q:"Quel sport utilise un sabre ou une épée ?", a:["Escrime","Judo","Boxe","Lutte"], correct:0, sig:"sport:escrime" },
+{ theme:"Sport & pop", q:"Quel sport est associé au Super Bowl ?", a:["Basketball","Football américain","Baseball","Rugby"], correct:1, sig:"sport:superbowl" },
+{ theme:"Sport & pop", q:"Quel sport pratique Novak Djokovic ?", a:["Tennis","Basketball","Golf","Rugby"], correct:0, sig:"sport:djokovic" },
+{ theme:"Sport & pop", q:"Quel sport est associé à la Ligue des Champions ?", a:["Basketball","Football","Rugby","Handball"], correct:1, sig:"sport:liguechampions" },
+{ theme:"Sport & pop", q:"Quel sport pratique Michael Jordan ?", a:["Football","Basketball","Baseball","Hockey"], correct:1, sig:"sport:jordan" },
+{ theme:"Sport & pop", q:"Quel sport utilise un palet ?", a:["Hockey","Football","Basketball","Rugby"], correct:0, sig:"sport:palet" },
+
+{ theme:"Sport & pop", q:"Quel univers met en scène des sorciers à Poudlard ?", a:["Le Seigneur des anneaux","Harry Potter","Narnia","Percy Jackson"], correct:1, sig:"pop:poudlard" },
+{ theme:"Sport & pop", q:"Quel super-héros est connu pour ses toiles d’araignée ?", a:["Batman","Spider-Man","Flash","Iron Man"], correct:1, sig:"pop:spiderman" },
+{ theme:"Sport & pop", q:"Quel personnage de jeu vidéo est un hérisson bleu rapide ?", a:["Mario","Sonic","Crash","Link"], correct:1, sig:"pop:sonic" },
+{ theme:"Sport & pop", q:"Quel jeu vidéo de football est édité par EA Sports ?", a:["FIFA","NBA 2K","PES","Madden"], correct:0, sig:"pop:fifa" },
+{ theme:"Sport & pop", q:"Quel manga met en scène des ninjas et le village de Konoha ?", a:["Bleach","Naruto","One Piece","Attack on Titan"], correct:1, sig:"pop:konoha" },
+{ theme:"Sport & pop", q:"Quel jeu vidéo se déroule dans la région de Hyrule ?", a:["Final Fantasy","Zelda","Elden Ring","Skyrim"], correct:1, sig:"pop:zelda" },
+{ theme:"Sport & pop", q:"Quel personnage vert géant fait partie des Avengers ?", a:["Hulk","Thor","Vision","Loki"], correct:0, sig:"pop:hulk" },
+{ theme:"Sport & pop", q:"Quel jeu vidéo est connu pour son battle royale réaliste moderne ?", a:["Fortnite","Call of Duty","Apex Legends","PUBG"], correct:3, sig:"pop:pubg" },
+{ theme:"Sport & pop", q:"Quel anime met en scène des titans géants ?", a:["Naruto","Bleach","Attack on Titan","One Piece"], correct:2, sig:"pop:titans" },
+{ theme:"Sport & pop", q:"Quel super-héros vient de Krypton ?", a:["Batman","Superman","Flash","Iron Man"], correct:1, sig:"pop:superman" },
+
+// ===== Littérature (50)
+
+{ theme:"Littérature", q:"Qui a écrit « Les Misérables » ?", a:["Émile Zola","Victor Hugo","Gustave Flaubert","Albert Camus"], correct:1, sig:"lit:misérables" },
+{ theme:"Littérature", q:"Qui a écrit « Le Petit Prince » ?", a:["Antoine de Saint-Exupéry","Jules Verne","Victor Hugo","Marcel Pagnol"], correct:0, sig:"lit:petitprince" },
+{ theme:"Littérature", q:"Qui a écrit « 1984 » ?", a:["Aldous Huxley","George Orwell","Ray Bradbury","Franz Kafka"], correct:1, sig:"lit:1984" },
+{ theme:"Littérature", q:"Qui a écrit « L’Étranger » ?", a:["Albert Camus","Jean-Paul Sartre","André Gide","Paul Éluard"], correct:0, sig:"lit:etranger" },
+{ theme:"Littérature", q:"Qui a écrit « Madame Bovary » ?", a:["Victor Hugo","Gustave Flaubert","Stendhal","Émile Zola"], correct:1, sig:"lit:madamebovary" },
+{ theme:"Littérature", q:"Qui a écrit « Germinal » ?", a:["Guy de Maupassant","Émile Zola","Balzac","Flaubert"], correct:1, sig:"lit:germinal" },
+{ theme:"Littérature", q:"Qui a écrit « Le Rouge et le Noir » ?", a:["Stendhal","Balzac","Flaubert","Zola"], correct:0, sig:"lit:rougenoir" },
+{ theme:"Littérature", q:"Qui a écrit « Le Comte de Monte-Cristo » ?", a:["Alexandre Dumas","Victor Hugo","Jules Verne","Molière"], correct:0, sig:"lit:montecristo" },
+{ theme:"Littérature", q:"Qui a écrit « Les Trois Mousquetaires » ?", a:["Balzac","Alexandre Dumas","Stendhal","Zola"], correct:1, sig:"lit:troismousquetaires" },
+{ theme:"Littérature", q:"Qui a écrit « Vingt mille lieues sous les mers » ?", a:["Jules Verne","H.G. Wells","George Orwell","Ray Bradbury"], correct:0, sig:"lit:20000lieues" },
+
+{ theme:"Littérature", q:"Qui a écrit « Dracula » ?", a:["Mary Shelley","Bram Stoker","Robert Louis Stevenson","Edgar Allan Poe"], correct:1, sig:"lit:dracula" },
+{ theme:"Littérature", q:"Qui a écrit « Frankenstein » ?", a:["Mary Shelley","Jane Austen","Virginia Woolf","Agatha Christie"], correct:0, sig:"lit:frankenstein" },
+{ theme:"Littérature", q:"Qui a écrit « Orgueil et Préjugés » ?", a:["Jane Austen","Emily Brontë","Mary Shelley","George Eliot"], correct:0, sig:"lit:orgueilprejuges" },
+{ theme:"Littérature", q:"Qui a écrit « Les Hauts de Hurlevent » ?", a:["Charlotte Brontë","Emily Brontë","Jane Austen","Virginia Woolf"], correct:1, sig:"lit:hautsdehurlevent" },
+{ theme:"Littérature", q:"Qui a écrit « Le Portrait de Dorian Gray » ?", a:["Oscar Wilde","Charles Dickens","Mark Twain","Victor Hugo"], correct:0, sig:"lit:doriangray" },
+{ theme:"Littérature", q:"Qui a écrit « Moby-Dick » ?", a:["Ernest Hemingway","Herman Melville","Jack London","John Steinbeck"], correct:1, sig:"lit:mobydick" },
+{ theme:"Littérature", q:"Qui a écrit « Le Vieil Homme et la Mer » ?", a:["Ernest Hemingway","Herman Melville","F. Scott Fitzgerald","J.D. Salinger"], correct:0, sig:"lit:vieilhomme" },
+{ theme:"Littérature", q:"Qui a écrit « Gatsby le Magnifique » ?", a:["John Steinbeck","F. Scott Fitzgerald","Ernest Hemingway","Jack Kerouac"], correct:1, sig:"lit:gatsby" },
+{ theme:"Littérature", q:"Qui a écrit « L’Attrape-cœurs » ?", a:["J.D. Salinger","F. Scott Fitzgerald","Mark Twain","Ray Bradbury"], correct:0, sig:"lit:attrapecoeurs" },
+{ theme:"Littérature", q:"Qui a écrit « Fahrenheit 451 » ?", a:["George Orwell","Ray Bradbury","Aldous Huxley","Isaac Asimov"], correct:1, sig:"lit:fahrenheit451" },
+
+{ theme:"Littérature", q:"Qui a écrit « Le Meilleur des mondes » ?", a:["Ray Bradbury","Aldous Huxley","George Orwell","Philip K. Dick"], correct:1, sig:"lit:meilleurdesmondes" },
+{ theme:"Littérature", q:"Qui a écrit « La Métamorphose » ?", a:["Franz Kafka","Albert Camus","Thomas Mann","Hermann Hesse"], correct:0, sig:"lit:metamorphose" },
+{ theme:"Littérature", q:"Qui a écrit « Le Procès » ?", a:["Franz Kafka","Stefan Zweig","Hermann Hesse","Bertolt Brecht"], correct:0, sig:"lit:proces" },
+{ theme:"Littérature", q:"Qui a écrit « Le Seigneur des anneaux » ?", a:["C.S. Lewis","J.R.R. Tolkien","George R.R. Martin","J.K. Rowling"], correct:1, sig:"lit:lotr" },
+{ theme:"Littérature", q:"Qui a écrit « Le Hobbit » ?", a:["J.R.R. Tolkien","C.S. Lewis","Terry Pratchett","Philip Pullman"], correct:0, sig:"lit:hobbit" },
+{ theme:"Littérature", q:"Qui a écrit « Harry Potter à l’école des sorciers » ?", a:["J.K. Rowling","Stephen King","Suzanne Collins","Philip Pullman"], correct:0, sig:"lit:hp1" },
+{ theme:"Littérature", q:"Qui a écrit « Les Chroniques de Narnia » ?", a:["J.R.R. Tolkien","C.S. Lewis","J.K. Rowling","Roald Dahl"], correct:1, sig:"lit:narnia" },
+{ theme:"Littérature", q:"Qui a écrit « Le Nom de la rose » ?", a:["Umberto Eco","Italo Calvino","Milan Kundera","Jorge Luis Borges"], correct:0, sig:"lit:nomdelarose" },
+{ theme:"Littérature", q:"Qui a écrit « Don Quichotte » ?", a:["Miguel de Cervantes","Federico García Lorca","Pablo Neruda","Gabriel García Márquez"], correct:0, sig:"lit:donquichotte" },
+{ theme:"Littérature", q:"Qui a écrit « Cent ans de solitude » ?", a:["Isabel Allende","Gabriel García Márquez","Jorge Luis Borges","Mario Vargas Llosa"], correct:1, sig:"lit:centans" },
+
+{ theme:"Littérature", q:"Quel détective est associé à Arthur Conan Doyle ?", a:["Hercule Poirot","Sherlock Holmes","Miss Marple","Philip Marlowe"], correct:1, sig:"lit:sherlock" },
+{ theme:"Littérature", q:"Quel détective est un personnage d’Agatha Christie ?", a:["Sherlock Holmes","Hercule Poirot","Arsène Lupin","Tintin"], correct:1, sig:"lit:poirot" },
+{ theme:"Littérature", q:"Quel gentleman-cambrioleur est créé par Maurice Leblanc ?", a:["Fantômas","Arsène Lupin","Vidocq","Belphégor"], correct:1, sig:"lit:lupin" },
+{ theme:"Littérature", q:"Quel auteur a écrit « Le Cid » ?", a:["Molière","Corneille","Racine","La Fontaine"], correct:1, sig:"lit:cid" },
+{ theme:"Littérature", q:"Quel auteur a écrit « Phèdre » ?", a:["Corneille","Racine","Molière","Voltaire"], correct:1, sig:"lit:phedre" },
+{ theme:"Littérature", q:"Quel auteur a écrit « Le Misanthrope » ?", a:["Molière","Racine","Corneille","Marivaux"], correct:0, sig:"lit:misanthrope" },
+{ theme:"Littérature", q:"Quel auteur a écrit « Candide » ?", a:["Rousseau","Voltaire","Diderot","Montesquieu"], correct:1, sig:"lit:candide" },
+{ theme:"Littérature", q:"Quel auteur a écrit « Les Fleurs du mal » ?", a:["Arthur Rimbaud","Charles Baudelaire","Paul Verlaine","Guillaume Apollinaire"], correct:1, sig:"lit:fleursdumal" },
+{ theme:"Littérature", q:"Quel auteur a écrit « Une saison en enfer » ?", a:["Arthur Rimbaud","Paul Verlaine","Charles Baudelaire","Victor Hugo"], correct:0, sig:"lit:saisonenenfer" },
+{ theme:"Littérature", q:"Quel auteur a écrit « Alcools » ?", a:["Guillaume Apollinaire","Paul Éluard","Louis Aragon","Arthur Rimbaud"], correct:0, sig:"lit:alcools" },
+
+{ theme:"Littérature", q:"Qui a écrit « Le Père Goriot » ?", a:["Balzac","Flaubert","Zola","Maupassant"], correct:0, sig:"lit:goriot" },
+{ theme:"Littérature", q:"Qui a écrit « La Peste » ?", a:["Albert Camus","Jean-Paul Sartre","André Malraux","Françoise Sagan"], correct:0, sig:"lit:lapeste" },
+{ theme:"Littérature", q:"Qui a écrit « Les Fables » ?", a:["Molière","La Fontaine","Racine","Corneille"], correct:1, sig:"lit:fables" },
+{ theme:"Littérature", q:"Qui a écrit « Les Confessions » (ouvrage célèbre) ?", a:["Voltaire","Jean-Jacques Rousseau","Diderot","Montesquieu"], correct:1, sig:"lit:confessions" },
+{ theme:"Littérature", q:"Qui a écrit « L’Odyssée » ?", a:["Homère","Virgile","Socrate","Platon"], correct:0, sig:"lit:odyssee" },
+{ theme:"Littérature", q:"Qui a écrit « L’Iliade » ?", a:["Homère","Euripide","Virgile","Aristote"], correct:0, sig:"lit:iliade" },
+{ theme:"Littérature", q:"Quel roman commence par ‘Aujourd’hui, maman est morte.’ ?", a:["L’Étranger","La Peste","Germinal","Madame Bovary"], correct:0, sig:"lit:aujourdhui" },
+{ theme:"Littérature", q:"Qui a écrit « Le Parfum » ?", a:["Patrick Süskind","Umberto Eco","Milan Kundera","Stefan Zweig"], correct:0, sig:"lit:parfum" },
+{ theme:"Littérature", q:"Qui a écrit « Le Journal d’Anne Frank » ?", a:["Anne Frank","Simone de Beauvoir","Marguerite Duras","Virginia Woolf"], correct:0, sig:"lit:annefrank" },
+{ theme:"Littérature", q:"Qui a écrit « Roméo et Juliette » ?", a:["Shakespeare","Molière","Oscar Wilde","Charles Dickens"], correct:0, sig:"lit:romeojuliette" },
+
+// ===== Musique (50)
+
+{ theme:"Musique", q:"Quel groupe a chanté « Bohemian Rhapsody » ?", a:["The Beatles","Queen","ABBA","Pink Floyd"], correct:1, sig:"mus:bohemian" },
+{ theme:"Musique", q:"Qui a chanté « Billie Jean » ?", a:["Prince","Michael Jackson","Stevie Wonder","Elton John"], correct:1, sig:"mus:billiejean" },
+{ theme:"Musique", q:"Quel duo français a sorti « One More Time » ?", a:["Daft Punk","Air","Justice","Phoenix"], correct:0, sig:"mus:onemoretime" },
+{ theme:"Musique", q:"Quel groupe a chanté « Hey Jude » ?", a:["The Rolling Stones","The Beatles","Queen","U2"], correct:1, sig:"mus:heyjude" },
+{ theme:"Musique", q:"Quel groupe a chanté « Smells Like Teen Spirit » ?", a:["Nirvana","Metallica","Pearl Jam","Radiohead"], correct:0, sig:"mus:teen_spirit" },
+{ theme:"Musique", q:"Quel groupe a chanté « Dancing Queen » ?", a:["ABBA","Queen","Bee Gees","The Beatles"], correct:0, sig:"mus:dancingqueen" },
+{ theme:"Musique", q:"Qui a chanté « Like a Virgin » ?", a:["Madonna","Whitney Houston","Céline Dion","Britney Spears"], correct:0, sig:"mus:likeavirgin" },
+{ theme:"Musique", q:"Qui a chanté « Rolling in the Deep » ?", a:["Adele","Rihanna","Beyoncé","Lady Gaga"], correct:0, sig:"mus:rolling" },
+{ theme:"Musique", q:"Quel artiste a chanté « Shape of You » ?", a:["Justin Bieber","Ed Sheeran","Shawn Mendes","The Weeknd"], correct:1, sig:"mus:shapeofyou" },
+{ theme:"Musique", q:"Quel groupe a chanté « Hotel California » ?", a:["Eagles","U2","Queen","Aerosmith"], correct:0, sig:"mus:hotelcalifornia" },
+
+{ theme:"Musique", q:"Quel artiste a chanté « Purple Rain » ?", a:["Prince","David Bowie","Elton John","George Michael"], correct:0, sig:"mus:purplerain" },
+{ theme:"Musique", q:"Quel artiste a chanté « Imagine » ?", a:["Paul McCartney","John Lennon","Bob Dylan","Freddie Mercury"], correct:1, sig:"mus:imagine" },
+{ theme:"Musique", q:"Quel groupe a chanté « Another Brick in the Wall » ?", a:["Pink Floyd","The Doors","Led Zeppelin","Muse"], correct:0, sig:"mus:anotherbrick" },
+{ theme:"Musique", q:"Quel groupe a chanté « Wonderwall » ?", a:["Blur","Oasis","Coldplay","Radiohead"], correct:1, sig:"mus:wonderwall" },
+{ theme:"Musique", q:"Quel groupe a chanté « Yellow » ?", a:["Coldplay","Oasis","Muse","Arctic Monkeys"], correct:0, sig:"mus:yellow" },
+{ theme:"Musique", q:"Quel groupe a chanté « Uprising » ?", a:["Muse","Radiohead","Coldplay","Placebo"], correct:0, sig:"mus:uprising" },
+{ theme:"Musique", q:"Quel groupe a chanté « With or Without You » ?", a:["U2","The Cure","Depeche Mode","R.E.M."], correct:0, sig:"mus:withorwithout" },
+{ theme:"Musique", q:"Quel groupe a chanté « Enjoy the Silence » ?", a:["Depeche Mode","The Cure","U2","Duran Duran"], correct:0, sig:"mus:enjoy" },
+{ theme:"Musique", q:"Quel groupe a chanté « Losing My Religion » ?", a:["R.E.M.","Oasis","U2","Radiohead"], correct:0, sig:"mus:losing" },
+{ theme:"Musique", q:"Quel groupe a chanté « Take On Me » ?", a:["a-ha","Duran Duran","Tears for Fears","The Police"], correct:0, sig:"mus:takeonme" },
+
+{ theme:"Musique", q:"Quel artiste a chanté « Bad Romance » ?", a:["Lady Gaga","Katy Perry","Rihanna","Beyoncé"], correct:0, sig:"mus:badromance" },
+{ theme:"Musique", q:"Quel artiste a chanté « Single Ladies » ?", a:["Beyoncé","Rihanna","Alicia Keys","Shakira"], correct:0, sig:"mus:singleladies" },
+{ theme:"Musique", q:"Quel artiste a chanté « Umbrella » ?", a:["Rihanna","Beyoncé","Adele","Sia"], correct:0, sig:"mus:umbrella" },
+{ theme:"Musique", q:"Quel artiste a chanté « Toxic » ?", a:["Britney Spears","Christina Aguilera","Lady Gaga","Katy Perry"], correct:0, sig:"mus:toxic" },
+{ theme:"Musique", q:"Quel artiste a chanté « Firework » ?", a:["Katy Perry","Taylor Swift","Ariana Grande","Dua Lipa"], correct:0, sig:"mus:firework" },
+{ theme:"Musique", q:"Quel artiste a chanté « Levitating » ?", a:["Dua Lipa","Ariana Grande","Billie Eilish","Taylor Swift"], correct:0, sig:"mus:levitating" },
+{ theme:"Musique", q:"Quel artiste a chanté « Blinding Lights » ?", a:["The Weeknd","Bruno Mars","Ed Sheeran","Justin Bieber"], correct:0, sig:"mus:blindinglights" },
+{ theme:"Musique", q:"Quel artiste a chanté « Uptown Funk » ?", a:["Bruno Mars","Pharrell Williams","Justin Timberlake","Usher"], correct:0, sig:"mus:uptownfunk" },
+{ theme:"Musique", q:"Quel artiste a chanté « Happy » ?", a:["Pharrell Williams","Bruno Mars","Ed Sheeran","The Weeknd"], correct:0, sig:"mus:happy" },
+{ theme:"Musique", q:"Quel artiste a chanté « Someone Like You » ?", a:["Adele","Sia","Amy Winehouse","Lana Del Rey"], correct:0, sig:"mus:someone" },
+
+{ theme:"Musique", q:"Quel genre musical est associé à une guitare, une basse et une batterie ?", a:["Rock","Reggae","Classique","Techno"], correct:0, sig:"mus:genre:rock" },
+{ theme:"Musique", q:"Quel instrument possède des touches noires et blanches ?", a:["Piano","Violon","Flûte","Trompette"], correct:0, sig:"mus:instr:piano" },
+{ theme:"Musique", q:"Quel instrument a 6 cordes le plus souvent ?", a:["Guitare","Violoncelle","Harpe","Trombone"], correct:0, sig:"mus:instr:guitare" },
+{ theme:"Musique", q:"Quel instrument est un instrument à vent ?", a:["Saxophone","Violon","Batterie","Piano"], correct:0, sig:"mus:instr:saxo" },
+{ theme:"Musique", q:"Quel instrument est un instrument à cordes frottées ?", a:["Violon","Trompette","Flûte","Batterie"], correct:0, sig:"mus:instr:violon" },
+{ theme:"Musique", q:"Quel instrument est un instrument de percussion ?", a:["Batterie","Clarinette","Harpe","Violon"], correct:0, sig:"mus:instr:batterie" },
+{ theme:"Musique", q:"Comment s’appelle une personne qui dirige un orchestre ?", a:["Chef d’orchestre","Soliste","Arrangeur","Choriste"], correct:0, sig:"mus:chef" },
+{ theme:"Musique", q:"Comment s’appelle une chanson sans paroles ?", a:["Instrumental","A cappella","Remix","Cover"], correct:0, sig:"mus:instrumental" },
+
+{ theme:"Musique", q:"Quel compositeur a écrit la Symphonie n°9 ?", a:["Beethoven","Mozart","Bach","Chopin"], correct:0, sig:"mus:beethoven9" },
+{ theme:"Musique", q:"Quel compositeur est associé à « Une petite musique de nuit » ?", a:["Mozart","Beethoven","Vivaldi","Bach"], correct:0, sig:"mus:mozart_nuit" },
+{ theme:"Musique", q:"Qui a composé « Les Quatre Saisons » ?", a:["Vivaldi","Bach","Mozart","Tchaïkovski"], correct:0, sig:"mus:4saisons" },
+{ theme:"Musique", q:"Quel compositeur a écrit « La Lettre à Élise » ?", a:["Beethoven","Mozart","Chopin","Schubert"], correct:0, sig:"mus:elise" },
+{ theme:"Musique", q:"Quel compositeur est associé au « Lac des cygnes » ?", a:["Tchaïkovski","Vivaldi","Bach","Debussy"], correct:0, sig:"mus:lacdescygnes" },
+
+{ theme:"Musique", q:"Quel groupe est connu pour l’album « The Dark Side of the Moon » ?", a:["Pink Floyd","The Beatles","Queen","Led Zeppelin"], correct:0, sig:"mus:darksidemoon" },
+{ theme:"Musique", q:"Quel groupe est connu pour « Stairway to Heaven » ?", a:["Led Zeppelin","The Rolling Stones","Queen","Deep Purple"], correct:0, sig:"mus:stairway" },
+{ theme:"Musique", q:"Quel groupe a chanté « I Will Always Love You » (version célèbre) ?", a:["Whitney Houston","Mariah Carey","Céline Dion","Madonna"], correct:0, sig:"mus:alwayslove" },
+{ theme:"Musique", q:"Quel groupe a chanté « Sweet Child O' Mine » ?", a:["Guns N' Roses","Nirvana","Metallica","AC/DC"], correct:0, sig:"mus:sweetchild" },
+{ theme:"Musique", q:"Quel groupe a chanté « Back in Black » ?", a:["AC/DC","Metallica","Aerosmith","Nirvana"], correct:0, sig:"mus:backinblack" },
+{ theme:"Musique", q:"Quel groupe a chanté « Billie Jean » ?", a:["Queen","Michael Jackson","The Beatles","ABBA"], correct:1, sig:"mus:billiejean_alt" },
+{ theme:"Musique", q:"Quel artiste a chanté « No Woman, No Cry » ?", a:["Bob Marley","Jimmy Cliff","Peter Tosh","UB40"], correct:0, sig:"mus:nowoman" },
+{ theme:"Musique", q:"Quel genre est associé à Bob Marley ?", a:["Reggae","Rock","Jazz","Classique"], correct:0, sig:"mus:genre:reggae" },
+
+// ===== Mythologie (50)
+
+{ theme:"Mythologie", q:"Zeus est le dieu de quoi ?", a:["La mer","La foudre","La guerre","Les enfers"], correct:1, sig:"myth:zeus" },
+{ theme:"Mythologie", q:"Qui est le dieu grec de la mer ?", a:["Hadès","Apollon","Poséidon","Hermès"], correct:2, sig:"myth:poseidon" },
+{ theme:"Mythologie", q:"Qui est le dieu des enfers dans la mythologie grecque ?", a:["Hadès","Zeus","Arès","Hermès"], correct:0, sig:"myth:hades" },
+{ theme:"Mythologie", q:"Athéna est associée à quoi ?", a:["La sagesse","La mer","Le feu","La chasse"], correct:0, sig:"myth:athena" },
+{ theme:"Mythologie", q:"Arès est le dieu de quoi ?", a:["La musique","La guerre","La pluie","La lumière"], correct:1, sig:"myth:ares" },
+{ theme:"Mythologie", q:"Apollon est notamment le dieu de quoi ?", a:["La guerre","Le soleil","La mer","Les volcans"], correct:1, sig:"myth:apollon" },
+{ theme:"Mythologie", q:"Qui est la déesse de l’amour ?", a:["Héra","Athéna","Aphrodite","Artémis"], correct:2, sig:"myth:aphrodite" },
+{ theme:"Mythologie", q:"Artémis est la déesse de quoi ?", a:["La chasse","La guerre","La mer","Le feu"], correct:0, sig:"myth:artemis" },
+{ theme:"Mythologie", q:"Hermès est le messager de quels dieux ?", a:["Égyptiens","Grecs","Romains","Nordiques"], correct:1, sig:"myth:hermes" },
+{ theme:"Mythologie", q:"Qui est l’épouse de Zeus ?", a:["Héra","Aphrodite","Athéna","Perséphone"], correct:0, sig:"myth:hera" },
+
+{ theme:"Mythologie", q:"Thor est associé à quoi ?", a:["La mer","Le tonnerre","La guerre","La sagesse"], correct:1, sig:"myth:thor" },
+{ theme:"Mythologie", q:"Odin est le dieu principal de quelle mythologie ?", a:["Grecque","Égyptienne","Nordique","Romaine"], correct:2, sig:"myth:odin" },
+{ theme:"Mythologie", q:"Loki est connu pour être quoi ?", a:["Un dieu du soleil","Un dieu rusé","Un dieu de la mer","Un dieu de la guerre"], correct:1, sig:"myth:loki" },
+{ theme:"Mythologie", q:"Quel est le marteau de Thor ?", a:["Mjöllnir","Excalibur","Andúril","Gungnir"], correct:0, sig:"myth:mjollnir" },
+{ theme:"Mythologie", q:"Quel arbre relie les mondes dans la mythologie nordique ?", a:["Yggdrasil","Olympe","Valhalla","Asgard"], correct:0, sig:"myth:yggdrasil" },
+{ theme:"Mythologie", q:"Quel est le royaume des morts chez les Vikings ?", a:["Asgard","Midgard","Valhalla","Helheim"], correct:3, sig:"myth:helheim" },
+
+{ theme:"Mythologie", q:"Qui est le dieu égyptien à tête de chacal ?", a:["Osiris","Râ","Anubis","Horus"], correct:2, sig:"myth:anubis" },
+{ theme:"Mythologie", q:"Qui est le dieu soleil dans la mythologie égyptienne ?", a:["Osiris","Horus","Râ","Anubis"], correct:2, sig:"myth:ra" },
+{ theme:"Mythologie", q:"Qui est le dieu des morts en Égypte ?", a:["Râ","Anubis","Osiris","Horus"], correct:2, sig:"myth:osiris" },
+{ theme:"Mythologie", q:"Horus est représenté avec quelle tête d’animal ?", a:["Chacal","Faucon","Lion","Crocodile"], correct:1, sig:"myth:horus" },
+
+{ theme:"Mythologie", q:"Qui est le héros grec qui a vaincu le Minotaure ?", a:["Persée","Achille","Héraclès","Thésée"], correct:3, sig:"myth:thesee" },
+{ theme:"Mythologie", q:"Qui a vaincu Méduse ?", a:["Achille","Persée","Héraclès","Ulysse"], correct:1, sig:"myth:persee" },
+{ theme:"Mythologie", q:"Achille est célèbre pour quoi ?", a:["Sa force","Sa ruse","Son talon","Son marteau"], correct:2, sig:"myth:achille" },
+{ theme:"Mythologie", q:"Ulysse est le héros de quel récit ?", a:["L’Iliade","L’Odyssée","Les Métamorphoses","L’Énéide"], correct:1, sig:"myth:ulysse" },
+{ theme:"Mythologie", q:"Qui a construit le cheval de Troie ?", a:["Ulysse","Achille","Hector","Paris"], correct:0, sig:"myth:chevaltroie" },
+{ theme:"Mythologie", q:"Quel héros a accompli 12 travaux ?", a:["Thésée","Héraclès","Persée","Jason"], correct:1, sig:"myth:heracles" },
+
+{ theme:"Mythologie", q:"Quel monstre a un corps de lion et une tête de femme ?", a:["Sphinx","Minotaure","Hydre","Méduse"], correct:0, sig:"myth:sphinx" },
+{ theme:"Mythologie", q:"Quel monstre a plusieurs têtes qui repoussent ?", a:["Cerbère","Hydre","Minotaure","Cyclope"], correct:1, sig:"myth:hydre" },
+{ theme:"Mythologie", q:"Quel chien garde les enfers ?", a:["Fenrir","Cerbère","Argos","Loki"], correct:1, sig:"myth:cerbere" },
+{ theme:"Mythologie", q:"Le Minotaure a la tête de quoi ?", a:["Lion","Taureau","Loup","Cheval"], correct:1, sig:"myth:minotaure" },
+
+{ theme:"Mythologie", q:"Romulus et Rémus sont associés à quelle ville ?", a:["Athènes","Rome","Troie","Sparte"], correct:1, sig:"myth:romulus" },
+{ theme:"Mythologie", q:"Qui est le dieu romain équivalent à Zeus ?", a:["Mars","Neptune","Jupiter","Pluton"], correct:2, sig:"myth:jupiter" },
+{ theme:"Mythologie", q:"Mars est le dieu romain de quoi ?", a:["La guerre","La mer","La sagesse","Le feu"], correct:0, sig:"myth:mars" },
+{ theme:"Mythologie", q:"Neptune est le dieu romain de quoi ?", a:["La mer","La guerre","La lumière","La chasse"], correct:0, sig:"myth:neptune" },
+
+{ theme:"Mythologie", q:"Qui est le père des dieux grecs ?", a:["Hadès","Cronos","Zeus","Ouranos"], correct:1, sig:"myth:cronos" },
+{ theme:"Mythologie", q:"Quel titan a été puni pour avoir volé le feu aux dieux ?", a:["Atlas","Prométhée","Cronos","Hyperion"], correct:1, sig:"myth:promethee" },
+{ theme:"Mythologie", q:"Atlas est condamné à porter quoi ?", a:["La Terre","Le ciel","Les enfers","Le soleil"], correct:1, sig:"myth:atlas" },
+
+{ theme:"Mythologie", q:"Fenrir est un animal de quelle mythologie ?", a:["Grecque","Égyptienne","Nordique","Romaine"], correct:2, sig:"myth:fenrir" },
+{ theme:"Mythologie", q:"Quel lieu est la demeure des dieux nordiques ?", a:["Valhalla","Asgard","Midgard","Helheim"], correct:1, sig:"myth:asgard" },
+{ theme:"Mythologie", q:"Midgard correspond à quoi ?", a:["Le monde des morts","Le monde des humains","Le monde des dieux","Le monde des géants"], correct:1, sig:"myth:midgard" },
+
+{ theme:"Mythologie", q:"Qui est la déesse grecque de la moisson ?", a:["Déméter","Athéna","Héra","Hestia"], correct:0, sig:"myth:demeter" },
+{ theme:"Mythologie", q:"Perséphone est la reine de quoi ?", a:["L’Olympe","Les enfers","La mer","Le ciel"], correct:1, sig:"myth:persephone" },
+{ theme:"Mythologie", q:"Hestia est la déesse de quoi ?", a:["La guerre","Le foyer","La mer","La chasse"], correct:1, sig:"myth:hestia" },
+
+{ theme:"Mythologie", q:"Quel héros a cherché la Toison d’or ?", a:["Héraclès","Jason","Persée","Achille"], correct:1, sig:"myth:jason" },
+{ theme:"Mythologie", q:"Quel dieu grec boite et forge les armes des dieux ?", a:["Hermès","Héphaïstos","Arès","Apollon"], correct:1, sig:"myth:hephaistos" },
+{ theme:"Mythologie", q:"Quel fleuve sépare le monde des vivants des morts ?", a:["Nil","Styx","Tibre","Danube"], correct:1, sig:"myth:styx" },
+
+// ===== Logique / calcul (50)
+
+{ theme:"Logique / calcul", q:"12 × 8 = ?", a:["96","88","108","86"], correct:0, sig:"log:12x8" },
+{ theme:"Logique / calcul", q:"15 + 27 = ?", a:["40","42","44","38"], correct:1, sig:"log:15+27" },
+{ theme:"Logique / calcul", q:"144 ÷ 12 = ?", a:["10","11","12","13"], correct:2, sig:"log:144/12" },
+{ theme:"Logique / calcul", q:"9² = ?", a:["72","81","99","90"], correct:1, sig:"log:9carre" },
+{ theme:"Logique / calcul", q:"7 × 7 = ?", a:["42","48","49","56"], correct:2, sig:"log:7x7" },
+{ theme:"Logique / calcul", q:"100 - 37 = ?", a:["63","67","73","53"], correct:0, sig:"log:100-37" },
+{ theme:"Logique / calcul", q:"25 × 4 = ?", a:["90","95","100","110"], correct:2, sig:"log:25x4" },
+{ theme:"Logique / calcul", q:"81 ÷ 9 = ?", a:["8","9","7","6"], correct:1, sig:"log:81/9" },
+{ theme:"Logique / calcul", q:"6 × 11 = ?", a:["66","60","72","64"], correct:0, sig:"log:6x11" },
+{ theme:"Logique / calcul", q:"200 - 125 = ?", a:["75","85","65","95"], correct:0, sig:"log:200-125" },
+
+{ theme:"Logique / calcul", q:"2, 4, 6, 8, ... ?", a:["9","10","12","11"], correct:1, sig:"log:suite1" },
+{ theme:"Logique / calcul", q:"5, 10, 15, ... ?", a:["18","20","25","30"], correct:1, sig:"log:suite2" },
+{ theme:"Logique / calcul", q:"1, 1, 2, 3, 5, ... ?", a:["6","7","8","9"], correct:2, sig:"log:fibonacci" },
+{ theme:"Logique / calcul", q:"10, 20, 40, ... ?", a:["60","70","80","90"], correct:2, sig:"log:suite3" },
+{ theme:"Logique / calcul", q:"100, 90, 80, ... ?", a:["75","70","60","65"], correct:1, sig:"log:suite4" },
+{ theme:"Logique / calcul", q:"3, 6, 12, 24, ... ?", a:["36","48","42","30"], correct:1, sig:"log:suite5" },
+{ theme:"Logique / calcul", q:"1, 4, 9, 16, ... ?", a:["20","24","25","36"], correct:2, sig:"log:carres" },
+
+{ theme:"Logique / calcul", q:"Si tous les chats sont des mammifères, alors ?", a:["Tous les mammifères sont des chats","Certains chats ne sont pas des mammifères","Tous les chats sont des mammifères","Aucun mammifère n’est un chat"], correct:2, sig:"log:syllogisme1" },
+{ theme:"Logique / calcul", q:"Si 5 stylos coûtent 10€, combien coûtent 10 stylos ?", a:["15€","20€","25€","30€"], correct:1, sig:"log:proportion1" },
+{ theme:"Logique / calcul", q:"Un triangle a combien de côtés ?", a:["3","4","5","6"], correct:0, sig:"log:triangle" },
+{ theme:"Logique / calcul", q:"Un carré a combien d’angles ?", a:["3","4","5","6"], correct:1, sig:"log:carre" },
+{ theme:"Logique / calcul", q:"Si tu doubles 15, tu obtiens ?", a:["25","30","35","40"], correct:1, sig:"log:double15" },
+
+{ theme:"Logique / calcul", q:"Quel nombre est pair ?", a:["13","21","18","27"], correct:2, sig:"log:pair" },
+{ theme:"Logique / calcul", q:"Quel nombre est multiple de 5 ?", a:["32","45","33","28"], correct:1, sig:"log:multiple5" },
+{ theme:"Logique / calcul", q:"Quel nombre est divisible par 3 ?", a:["14","16","18","22"], correct:2, sig:"log:div3" },
+{ theme:"Logique / calcul", q:"0, 5, 15, 30, ... ?", a:["40","45","50","60"], correct:2, sig:"log:suite6" },
+
+{ theme:"Logique / calcul", q:"Combien font 3 × 3 × 3 ?", a:["9","18","27","36"], correct:2, sig:"log:3cube" },
+{ theme:"Logique / calcul", q:"50% de 80 = ?", a:["20","30","40","60"], correct:2, sig:"log:50pourcent" },
+{ theme:"Logique / calcul", q:"25% de 200 = ?", a:["25","40","50","75"], correct:2, sig:"log:25pourcent" },
+{ theme:"Logique / calcul", q:"Quel est le tiers de 90 ?", a:["20","25","30","35"], correct:2, sig:"log:tiers90" },
+{ theme:"Logique / calcul", q:"2² + 3² = ?", a:["10","11","12","13"], correct:3, sig:"log:carres2" },
+
+{ theme:"Logique / calcul", q:"Quel nombre vient après 999 ?", a:["1000","1001","990","1099"], correct:0, sig:"log:999" },
+{ theme:"Logique / calcul", q:"Si un objet coûte 40€ et augmente de 10€, il coûte ?", a:["45€","50€","60€","55€"], correct:1, sig:"log:augmentation" },
+{ theme:"Logique / calcul", q:"Quelle fraction équivaut à 0,5 ?", a:["1/3","1/2","1/4","2/3"], correct:1, sig:"log:fraction1" },
+{ theme:"Logique / calcul", q:"Quelle fraction équivaut à 0,25 ?", a:["1/4","1/2","1/5","3/4"], correct:0, sig:"log:fraction2" },
+
+{ theme:"Logique / calcul", q:"Combien font 14 × 5 ?", a:["60","65","70","75"], correct:2, sig:"log:14x5" },
+{ theme:"Logique / calcul", q:"Combien font 18 + 24 ?", a:["40","42","44","46"], correct:1, sig:"log:18+24" },
+{ theme:"Logique / calcul", q:"64 ÷ 8 = ?", a:["6","7","8","9"], correct:2, sig:"log:64/8" },
+{ theme:"Logique / calcul", q:"Combien font 13 × 3 ?", a:["36","39","42","33"], correct:1, sig:"log:13x3" },
+
+{ theme:"Logique / calcul", q:"Si un train roule à 100 km/h pendant 1 heure, il parcourt ?", a:["50 km","100 km","150 km","200 km"], correct:1, sig:"log:vitesse1" },
+{ theme:"Logique / calcul", q:"Si tu retires 1 à 1000, tu obtiens ?", a:["999","998","1001","990"], correct:0, sig:"log:1000-1" },
+{ theme:"Logique / calcul", q:"Combien de minutes dans 2 heures ?", a:["60","90","120","180"], correct:2, sig:"log:minutes" },
+{ theme:"Logique / calcul", q:"Combien de secondes dans 1 minute ?", a:["30","60","90","120"], correct:1, sig:"log:secondes" },
+
+{ theme:"Logique / calcul", q:"Quel nombre complète : 4, 8, 16, ... ?", a:["20","24","32","64"], correct:2, sig:"log:suite7" },
+{ theme:"Logique / calcul", q:"Quel nombre complète : 1, 3, 6, 10, ... ?", a:["12","13","15","16"], correct:2, sig:"log:suite8" },
+{ theme:"Logique / calcul", q:"Quel nombre complète : 2, 3, 5, 7, ... ?", a:["9","10","11","12"], correct:2, sig:"log:premiers" },
+{ theme:"Logique / calcul", q:"Combien font 5 × 9 ?", a:["40","45","50","55"], correct:1, sig:"log:5x9" },
+
+{ theme:"Logique / calcul", q:"Quel est le double de 64 ?", a:["96","120","128","132"], correct:2, sig:"log:double64" },
+{ theme:"Logique / calcul", q:"Quel est le quart de 80 ?", a:["10","15","20","25"], correct:2, sig:"log:quart80" },
+{ theme:"Logique / calcul", q:"Quel est le carré de 6 ?", a:["30","32","36","42"], correct:2, sig:"log:carre6" },
+{ theme:"Logique / calcul", q:"Combien font 8 × 12 ?", a:["86","92","96","104"], correct:2, sig:"log:8x12" },
+  ];
+
+  // -----------------------
+  // Anti-repeat memory (signature)
+  // -----------------------
+  const HISTORY_MAX = 240;
+  const recentSignatures = [];
+  const recentSet = new Set();
+  function rememberSignature(sig){
+    recentSignatures.push(sig);
+    recentSet.add(sig);
+    if(recentSignatures.length > HISTORY_MAX){
+      const old = recentSignatures.shift();
+      recentSet.delete(old);
+    }
+  }
+
+  // -----------------------
+  // Local generator only (NO API)
+  // -----------------------
+  function getQuestionFromBank(){
+    if(!Array.isArray(QUESTION_BANK) || QUESTION_BANK.length === 0){
+      return {
+        theme: "Setup",
+        q: "⚠️ Tu n'as pas encore collé ta banque de questions.",
+        a: ["OK","OK","OK","OK"],
+        correct: 0,
+        sig: "setup:missing_bank"
+      };
+    }
+    for(let tries=0; tries<60; tries++){
+      const q = choice(QUESTION_BANK);
+      if(!recentSet.has(q.sig)) return q;
+    }
+    return choice(QUESTION_BANK);
+  }
+
+  function normalizeQuestion(q){
+    const answers = q.a.slice(0,4);
+    const correctIndex = q.correct;
+
+    const indices = [0,1,2,3];
+    const shuffledIdx = shuffle(indices);
+    const newAnswers = shuffledIdx.map(i => answers[i]);
+    const newCorrectIndex = shuffledIdx.indexOf(correctIndex);
+
+    return {
+      category: q.theme,
+      prompt: q.q,
+      answers: newAnswers,
+      correctIndex: newCorrectIndex,
+      signature: q.sig
+    };
+  }
+
+  async function generateQuestion(){
+    const qRaw = getQuestionFromBank();
+    return normalizeQuestion(qRaw);
+  }
+
+  // -----------------------
+  // Game State (mode: "série maximale")
+  // -----------------------
+  const STORAGE_KEY = "quiztoon_mania_save_v5_mobilefit";
+
+  const state = {
+    started: false,
+    locked: false,
+    waitingNext: false,
+
+    // run = tentative en cours (remise à 0 à la moindre erreur)
+    qIndex: 0,
+    streak: 0,
+    bestStreak: 0,
+
+    rp: 0,
+    bestRp: 0, // used to remember best rank achieved
+
+    // stats globales depuis le lancement (ne reset pas)
+    correct: 0,
+    wrong: 0,
+
+    // bouton suivant: next | restart
+    nextMode: "next",
+
+    current: null,
+
+    timeMax: 7.0,
+    timeLeft: 7.0,
+    lastTickSec: 7,
+    timerId: null,
+    _lastTs: null,
+  };
+
+  const mascotFaces = {
+    idle: ["🤓","😺","🧠","😎","🐧","🦦","🦊"],
+    good: ["😎","🤩","🥳","✨","🧠"],
+    bad: ["🥴","😵","🙃","😬","💥"],
+    hurry: ["😱","😳","⏰","🫠"]
+  };
+  function setMascot(face){ ui.mascot.textContent = face; }
+
+  // Confetti
+  function boomConfetti(){
+    const c = ui.confetti;
+    c.innerHTML = "";
+    const n = 38;
+    for(let i=0;i<n;i++){
+      const s = document.createElement("span");
+      s.style.left = randInt(0, 100) + "vw";
+      s.style.top = randInt(-20, 10) + "vh";
+      s.style.background = `hsl(${randInt(0,360)}, 90%, 65%)`;
+      s.style.animationDelay = (Math.random()*0.08) + "s";
+      s.style.transform = `rotate(${randInt(0,360)}deg)`;
+      c.appendChild(s);
+    }
+    c.classList.add("show");
+    setTimeout(()=>c.classList.remove("show"), 950);
+  }
+
+  // Toast
+  let toastTimeout = null;
+  function showToast(text, kind=""){
+    ui.toast.textContent = text;
+    ui.toast.className = "toast show" + (kind ? " " + kind : "");
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(()=> ui.toast.className = "toast", 900);
+  }
+
+  // Body mode (compact header on mobile while question runs)
+  function setBodyMode(mode){
+    document.body.classList.toggle("inQuestion", mode === "inQuestion");
+    document.body.classList.toggle("betweenQuestions", mode === "betweenQuestions");
+  }
+
+  // Rank UI
+  function updateRankUI(){
+    const r = getRank(state.rp);
+    if(ui.rankName) ui.rankName.textContent = r.name;
+    if(ui.rankBar) ui.rankBar.style.width = Math.round(r.prog * 100) + "%";
+  }
+
+  function getBestRank(){
+    return getRank(state.bestRp);
+  }
+
+  function updateBestRankUI(){
+    const br = getBestRank();
+    if(ui.rankIco) ui.rankIco.textContent = br.ico;
+    if(ui.bestRankName) ui.bestRankName.textContent = br.name;
+
+    if(ui.bestRankIcoM) ui.bestRankIcoM.textContent = br.ico;
+    if(ui.bestRankNameM) ui.bestRankNameM.textContent = br.name;
+  }
+
+  function updateStats(){
+    const total = state.correct + state.wrong;
+    const pct = total > 0 ? Math.round((state.correct / total) * 100) : 0;
+
+    if(ui.rate) ui.rate.textContent = `${pct}%`;
+    if(ui.streak) ui.streak.textContent = String(state.streak);
+    if(ui.bestStreak) ui.bestStreak.textContent = String(state.bestStreak);
+    if(ui.correct) ui.correct.textContent = String(state.correct);
+    if(ui.wrong) ui.wrong.textContent = String(state.wrong);
+    if(ui.rp) ui.rp.textContent = String(state.rp);
+    if(ui.qIndexLeft) ui.qIndexLeft.textContent = String(state.qIndex);
+
+    // mobile line
+    if(ui.rateM) ui.rateM.textContent = `${pct}%`;
+    if(ui.streakM) ui.streakM.textContent = String(state.streak);
+    if(ui.bestStreakM) ui.bestStreakM.textContent = String(state.bestStreak);
+    if(ui.correctM) ui.correctM.textContent = String(state.correct);
+    if(ui.wrongM) ui.wrongM.textContent = String(state.wrong);
+    if(ui.rpM) ui.rpM.textContent = String(state.rp);
+
+    updateRankUI();
+    updateBestRankUI();
+  }
+
+  function setContinueMode(mode){
+    state.nextMode = mode; // "next" | "restart"
+    ui.btnContinue.textContent = (mode === "restart") ? "🔁 Recommencer" : "➡️ Question suivante";
+  }
+
+  function resetRun(){
+    state.qIndex = 0;
+    state.streak = 0;
+    state.rp = 0;
+    updateStats();
+  }
+
+  function setAnswersEnabled(enabled){
+    for(const btn of ui.answers){
+      btn.classList.toggle("disabled", !enabled);
+      btn.disabled = !enabled;
+    }
+  }
+
+  function renderQuestion(q){
+    ui.qIndex.textContent = String(state.qIndex);
+    ui.qMeta.textContent = `Thème : ${q.category}`;
+    ui.qText.textContent = q.prompt;
+
+    for(let i=0;i<4;i++){
+      ui.answers[i].classList.remove("good","bad","disabled");
+      ui.answers[i].querySelector(".txt").textContent = q.answers[i];
+    }
+
+    state.timeLeft = state.timeMax;
+    state.lastTickSec = Math.ceil(state.timeLeft);
+    ui.timeLeft.textContent = state.timeLeft.toFixed(1);
+    ui.timerFill.style.width = "100%";
+
+    state.locked = false;
+    state.waitingNext = false;
+    ui.continueZone.style.display = "none";
+    setAnswersEnabled(true);
+    setMascot(choice(mascotFaces.idle));
+
+    // compact mode while question runs
+    setBodyMode("inQuestion");
+  }
+
+  // -----------------------
+  // Save / Load
+  // -----------------------
+  let saveDebounce = null;
+  function saveNow(){
+    try{
+      const payload = {
+        v: 5,
+        started: state.started,
+        locked: state.locked,
+        waitingNext: state.waitingNext,
+
+        qIndex: state.qIndex,
+        streak: state.streak,
+        bestStreak: state.bestStreak,
+        correct: state.correct,
+        wrong: state.wrong,
+        rp: state.rp,
+        bestRp: state.bestRp,
+        nextMode: state.nextMode,
+
+        current: state.current,
+        recentSignatures: recentSignatures.slice(-200),
+
+        timeMax: state.timeMax,
+        savedAt: Date.now(),
+        savedTimeLeft: state.locked ? state.timeMax : state.timeLeft,
+        sfxOn: sfxOn
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch {}
+  }
+
+  function saveSoon(){
+    clearTimeout(saveDebounce);
+    saveDebounce = setTimeout(saveNow, 150);
+  }
+
+  function loadSave(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return null;
+      const data = JSON.parse(raw);
+      if(!data || data.v !== 5) return null;
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
+  function restoreFromSave(data){
+    state.started = !!data.started;
+    state.locked = !!data.locked;
+    state.waitingNext = !!data.waitingNext;
+
+    state.qIndex = Number(data.qIndex || 0);
+    state.streak = Number(data.streak || 0);
+    state.bestStreak = Number(data.bestStreak || 0);
+
+    state.correct = Number(data.correct || 0);
+    state.wrong = Number(data.wrong || 0);
+
+    state.rp = Number(data.rp || 0);
+    state.bestRp = Number(data.bestRp || 0);
+
+    state.nextMode = (data.nextMode === "restart") ? "restart" : "next";
+    state.current = data.current || null;
+
+    if(typeof data.sfxOn === "boolean"){
+      sfxOn = data.sfxOn;
+      syncSfxToggles();
+    }
+
+    // restore history
+    recentSignatures.length = 0;
+    recentSet.clear();
+    const sigs = Array.isArray(data.recentSignatures) ? data.recentSignatures : [];
+    for(const s of sigs){
+      recentSignatures.push(s);
+      recentSet.add(s);
+    }
+
+    // timer restore
+    state.timeMax = Number(data.timeMax || 7.0);
+    const savedAt = Number(data.savedAt || Date.now());
+    const savedTimeLeft = Number(data.savedTimeLeft || state.timeMax);
+    const elapsed = Math.max(0, (Date.now() - savedAt) / 1000);
+    const newTimeLeft = clamp(savedTimeLeft - elapsed, 0, state.timeMax);
+    state.timeLeft = state.locked ? state.timeMax : newTimeLeft;
+
+    updateStats();
+
+    if(state.started && state.current){
+      ui.startZone.style.display = "none";
+      ui.answersWrap.style.display = "grid";
+
+      ui.qIndex.textContent = String(state.qIndex);
+      ui.qMeta.textContent = `Thème : ${state.current.category}`;
+      ui.qText.textContent = state.current.prompt;
+
+      for(let i=0;i<4;i++){
+        ui.answers[i].classList.remove("good","bad","disabled");
+        ui.answers[i].querySelector(".txt").textContent = state.current.answers[i];
+      }
+
+      ui.timeLeft.textContent = state.timeLeft.toFixed(1);
+      ui.timerFill.style.width = (state.timeLeft / state.timeMax * 100).toFixed(2) + "%";
+
+      if(state.locked){
+        setAnswersEnabled(false);
+        ui.answers[state.current.correctIndex]?.classList.add("good");
+        setContinueMode(state.nextMode);
+        ui.continueZone.style.display = "flex";
+        setBodyMode("betweenQuestions");
+      } else {
+        setAnswersEnabled(true);
+        ui.continueZone.style.display = "none";
+        setMascot(choice(mascotFaces.idle));
+        if(state.timeLeft <= 0){
+          handleTimeout();
+        } else {
+          startTimer();
+          setBodyMode("inQuestion");
+        }
+      }
+    }
+  }
+
+  // -----------------------
+  // Timer
+  // -----------------------
+  function stopTimer(){
+    if(state.timerId){
+      cancelAnimationFrame(state.timerId);
+      state.timerId = null;
+    }
+  }
+
+  function loopTimer(ts){
+    if(!state.started) return;
+    if(state.locked) return;
+
+    if(!state._lastTs) state._lastTs = ts;
+    const dt = (ts - state._lastTs) / 1000;
+    state._lastTs = ts;
+
+    state.timeLeft = Math.max(0, state.timeLeft - dt);
+    ui.timeLeft.textContent = state.timeLeft.toFixed(1);
+    ui.timerFill.style.width = (state.timeLeft / state.timeMax * 100).toFixed(2) + "%";
+
+    const tickNow = Math.ceil(state.timeLeft);
+    if(tickNow !== state.lastTickSec && tickNow <= 3 && tickNow >= 1){
+      state.lastTickSec = tickNow;
+      sfxTick();
+      setMascot(choice(mascotFaces.hurry));
+    }
+
+    saveSoon();
+
+    if(state.timeLeft <= 0){
+      handleTimeout();
+      return;
+    }
+    state.timerId = requestAnimationFrame(loopTimer);
+  }
+
+  function startTimer(){
+    stopTimer();
+    state._lastTs = null;
+    state.lastTickSec = Math.ceil(state.timeLeft);
+    state.timerId = requestAnimationFrame(loopTimer);
+  }
+
+  // -----------------------
+  // Flow
+  // -----------------------
+  async function nextQuestion(){
+    state.qIndex += 1;
+    if(ui.qIndexLeft) ui.qIndexLeft.textContent = String(state.qIndex);
+
+    ui.qMeta.textContent = "Thème : ...";
+    ui.qText.textContent = "Je pioche une question...";
+    setAnswersEnabled(false);
+    ui.continueZone.style.display = "none";
+    stopTimer();
+
+    const q = await generateQuestion();
+    state.current = q;
+
+    rememberSignature(q.signature);
+    renderQuestion(q);
+    updateStats();
+    startTimer();
+    saveSoon();
+  }
+
+  function lockAndReveal(correctIndex, chosenIndex, mode="next"){
+    state.locked = true;
+    stopTimer();
+    setAnswersEnabled(false);
+
+    for(let i=0;i<4;i++){
+      if(i === correctIndex) ui.answers[i].classList.add("good");
+      else if(i === chosenIndex) ui.answers[i].classList.add("bad");
+    }
+
+    state.waitingNext = true;
+    setContinueMode(mode);
+    ui.continueZone.style.display = "flex";
+    setBodyMode("betweenQuestions");
+    saveSoon();
+  }
+
+  function rpGain(){ return 12; }
+
+  function handleCorrect(chosenIndex){
+    const q = state.current;
+    lockAndReveal(q.correctIndex, chosenIndex, "next");
+
+    state.correct += 1;
+    state.streak += 1;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+
+    state.rp += rpGain();
+    state.bestRp = Math.max(state.bestRp, state.rp);
+
+    updateStats();
+    sfxGood();
+    boomConfetti();
+    setMascot(choice(mascotFaces.good));
+    showToast(`Correct ! Série : ${state.streak} (best ${state.bestStreak})`, "good");
+  }
+
+  function handleWrong(chosenIndex, reason="Faux"){
+    const q = state.current;
+    lockAndReveal(q.correctIndex, chosenIndex, "restart");
+
+    state.wrong += 1;
+
+    // reset immédiat de la tentative
+    state.streak = 0;
+    state.qIndex = 0;
+    state.rp = 0;
+
+    updateStats();
+    sfxBad();
+    ui.mainPanel.classList.add("shake");
+    setTimeout(()=>ui.mainPanel.classList.remove("shake"), 260);
+    setMascot(choice(mascotFaces.bad));
+    showToast(`${reason} ! Retour à 0 😭`, "bad");
+  }
+
+  function handleTimeout(){
+    if(state.locked) return;
+    handleWrong(-1, "Temps écoulé");
+  }
+
+  function answer(i){
+    if(!state.started || state.locked) return;
+    const q = state.current;
+    if(i === q.correctIndex) handleCorrect(i);
+    else handleWrong(i, "Faux");
+  }
+
+  async function startGame(){
+    state.started = true;
+    ui.startZone.style.display = "none";
+    ui.answersWrap.style.display = "grid";
+    ui.qText.textContent = "Première question...";
+    await nextQuestion();
+  }
+
+  // -----------------------
+  // Events
+  // -----------------------
+  ui.btnStart.addEventListener("click", async () => {
+    if(audioCtx) audioCtx.resume?.();
+    await startGame();
+  });
+
+  ui.btnContinue.addEventListener("click", async () => {
+    if(!state.started || !state.waitingNext) return;
+
+    for(const b of ui.answers){ b.classList.remove("good","bad"); }
+    state.locked = false;
+    state.waitingNext = false;
+
+    if(state.nextMode === "restart"){
+      resetRun();
+    }
+
+    await nextQuestion();
+  });
+
+  ui.answers.forEach((btn, idx) => {
+    btn.addEventListener("click", () => answer(idx));
+  });
+
+  // SFX toggles (desktop + mobile header)
+  if(ui.toggleSfx) ui.toggleSfx.addEventListener("click", toggleSfx);
+  if(ui.toggleSfxMobile) ui.toggleSfxMobile.addEventListener("click", toggleSfx);
+
+  window.addEventListener("keydown", (e) => {
+    if(!state.started || state.locked) return;
+    const k = e.key;
+    if(k === "1") answer(0);
+    else if(k === "2") answer(1);
+    else if(k === "3") answer(2);
+    else if(k === "4") answer(3);
+  });
+
+  // Mobile: avoid double-tap zoom on answer buttons (nice feel)
+  ui.answers.forEach(btn => btn.style.touchAction = "manipulation");
+  ui.btnStart.style.touchAction = "manipulation";
+  ui.btnContinue.style.touchAction = "manipulation";
+
+  window.addEventListener("beforeunload", () => saveNow());
+  window.addEventListener("visibilitychange", () => {
+    if(document.visibilityState === "hidden") saveNow();
+  });
+
+  // -----------------------
+  // Init
+  // -----------------------
+  syncSfxToggles();
+  updateStats();
+
+  const saved = loadSave();
+  if(saved && saved.started && saved.current){
+    restoreFromSave(saved);
+    showToast("Reprise de ta partie !", "");
+  } else {
+    ui.timeLeft.textContent = state.timeMax.toFixed(1);
+    ui.timerFill.style.width = "100%";
+    ui.qIndex.textContent = "0";
+    if(ui.qIndexLeft) ui.qIndexLeft.textContent = "0";
+    ui.qMeta.textContent = "Thème : ...";
+    ui.qText.textContent = "Clique sur \"Démarrer\" pour lancer la partie.";
+    setMascot("🤓");
+    setBodyMode("betweenQuestions");
+  }
+})();
+</script>
+</body>
+</html>
